@@ -360,6 +360,7 @@ DE_AKQUINET.hubu = function() {
                     throw "Cannot bind components - 'component' is not conform to the contract";
                 } else {
 					// Do we have to create a proxy ?
+					//TODO This test can be better.
 					if (binding.proxy == null  || binding.proxy) {
 						// Create the proxy
 						component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
@@ -489,7 +490,7 @@ DE_AKQUINET.hubu = function() {
               'component': component,
               'callback' : callback,
               'match' : match
-          }
+          };
           // Add the object at the end of the listener array
           listeners.push(listener);
 
@@ -537,18 +538,20 @@ DE_AKQUINET.hubu = function() {
 
             // So, here cmp is the component.
             var toRemove = [];
+			var i; // Loop index;
+			var listener;
             if (callback) {
                 // Must lookup component and callback
-                for (var i = 0; i < listeners.length; i++) {
-                    var listener = listeners[i];
+                for (i = 0; i < listeners.length; i++) {
+                    listener = listeners[i];
                     if (listener.component == cmp  && listener.callback == callback) {
                         // Match
                         toRemove.push(listener);
                     }
                 }
             } else {
-                for (var i = 0; i < listeners.length; i++) {
-                    var listener = listeners[i];
+                for (i = 0; i < listeners.length; i++) {
+                    listener = listeners[i];
                     if (listener.component == cmp) {
                         // Match
                         toRemove.push(listener);
@@ -557,7 +560,7 @@ DE_AKQUINET.hubu = function() {
             }
 
             // We must remove all listeners contained in toRemove
-            for (var i = 0; i < toRemove.length; i++) {
+            for (i = 0; i < toRemove.length; i++) {
                 var idx = DE_AKQUINET.utils.indexOf(listeners, toRemove[i]); // Find the index
                 if (idx != -1) { // Remove it if really found, that should always be the case.
                     listeners.splice(idx, 1);
@@ -594,8 +597,7 @@ DE_AKQUINET.hubu = function() {
             listeners = [];
             return this;
         }
-
-    }
+    };
 } ();
 
 /**
@@ -623,7 +625,7 @@ DE_AKQUINET.AbstractComponent = function() {
      */
     this.getComponentName = function() {
         throw "AbstractComponent is an abstract class";
-    }
+    };
 
     /**
      * Configures the component.
@@ -637,7 +639,7 @@ DE_AKQUINET.AbstractComponent = function() {
      */
     this.configure = function(hub, configuration) {
         throw "AbstractComponent is an abstract class";
-    }
+    };
 
     /**
      * Starts the component.
@@ -649,7 +651,7 @@ DE_AKQUINET.AbstractComponent = function() {
      */
     this.start = function() {
         throw "AbstractComponent is an abstract class";
-    }
+    };
 
     /**
      * Stop the component.
@@ -661,7 +663,7 @@ DE_AKQUINET.AbstractComponent = function() {
      */
     this.stop = function() {
         throw "AbstractComponent is an abstract class";
-    }
+    };
 
 };
 
@@ -679,7 +681,7 @@ hub = DE_AKQUINET.hubu;
  * @default {}
  * @namespace
  */
-DE_AKQUINET.utils =  DE_AKQUINET.utils || { }
+DE_AKQUINET.utils =  DE_AKQUINET.utils || { };
 
 /**
  * Checks that the given object is conform to the given contract
@@ -701,7 +703,7 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     // For all 'properties' from contract, check that the object
     // has an equivalent property
     for (var i in contract) {
-        if (object[i] == null) {
+        if (object[i] === null) {
             return false;
         } else {
             // Check type
@@ -724,7 +726,7 @@ DE_AKQUINET.utils.isFunction = function(obj) {
   // We need to specify the exact function
   // because toString can be overriden by browser.
   return Object.prototype.toString.call(obj) === "[object Function]";
-}
+};
 
 /**
  * Clones the given object. This create a deep copy of the
@@ -764,6 +766,7 @@ DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
 			// We use apply to pass all arguments, and set the target
 			// The resulting method is stored using the method name in the
 			// proxy object
+			// TODO This method uses 'eval', we should change !
 			proxy[i] = new Function('return this.__proxy__.' + i + '.apply(this.__proxy__, arguments)');
 		} else {
 			// Everything else is just referenced.
