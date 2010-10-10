@@ -342,8 +342,9 @@ function testBindWithValidContractWithoutProxy() {
 			assertEquals(source.name, "me");
 
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            //console.log(e);
+            //fail("Unexpected error " + e);
+			throw e;
         }
     }
 
