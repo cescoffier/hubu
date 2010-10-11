@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>H-Ubu Demo</title>
+        
+        <script src="jquery-1.4.2.js"> </script>
+        <script type="text/javascript" src="hubu.js"></script>
+
+        <!-- The components -->
+        <script type="text/javascript" src="backendComponent.js"></script>
+        <script type="text/javascript" src="frontendComponent.js"></script>
+        <!-- The contracts -->
+        <script type="text/javascript" src="UserServiceContract.js"></script>
+
+        <script type="text/javascript">
+
+        $(document).ready(function(){
+            // Component registration
+            hub
+                .registerComponent(backendComponent(), {
+                    component_name: 'user'
+                })
+                .registerComponent(frontendComponent(), {
+                    loginId : '#login',
+                    logoutId : '#logout',
+                    statusId : '#status',
+                    component_name: 'frontend'
+                })
+                .bind({ // Declare a binding
+                    component: 'user',
+                    to:'frontend',
+                    into: 'bind', // method called on 'to'
+                    contract: UserServiceContract // The interface
+                })
+                .start();
+        });
+        </script>
+
+    </head>
+    <body>
+        
+        <div>
+            <button id="login">Login</button>
+            <button id="logout">Logout</button>
+            <p id="status"></p>
+        </div>
+        
+    </body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+      "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="qunit.css" type="text/css"/>
+    <script src="jquery-1.4.2.js"> </script>
+    <script type="text/javascript" src="qunit.js"></script>
+    
+    <!-- Import the js under tests -->
+    <script type="text/javascript" src="hubu.js"></script>
+
+    <!-- Import components -->
+    <script type="text/javascript" src="backendComponent.js"></script>
+
+
+    <script type="text/javascript" src="testBackendComponent.js"></script>
+
+    
+    <script type="text/javascript">
+//        QUnit.log = function(result, message)  {  
+//            if (window.console && window.console.log) {  
+//                window.console.log(result +' :: '+ message);  
+//            }  
+//        }  
+        <!-- Tests -->
+        $(document).ready(function(){
+            testBackendComponent();
+        });
+        
+        
+    </script>
+  </head>
+  <body>
+    <h1 id="qunit-header">QUnit test - Components</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests">
+    </ol>
+  </body>
+</html>
