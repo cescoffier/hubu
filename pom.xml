@@ -62,7 +62,7 @@
       <plugin>
         <groupId>tv.bodil</groupId>
         <artifactId>maven-testlol-plugin</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.2.2</version>
         <executions>
           <execution>
             <phase>test</phase>
@@ -149,6 +149,14 @@
     <url>git@github.com:akquinet/hubu.git</url>
     <developerConnection>scm:git:git@github.com:akquinet/hubu.git</developerConnection>
   </scm>
+
+  <distributionManagement>
+    <site>
+      <!-- This makes the assumption that the gh-pages branch is tracked into ../hubu-pages -->
+      <id>github-pages</id>
+      <url>file:../hubu-pages/site</url>
+    </site>
+  </distributionManagement>
 
   <profiles>
     <profile>
