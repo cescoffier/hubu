@@ -703,11 +703,15 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     // For all 'properties' from contract, check that the object
     // has an equivalent property
     for (var i in contract) {
-        if (object[i] === null) {
+        // We need to check that the property is defined.
+        if (object[i] === undefined) {
+            DE_AKQUINET.utils.warn("Object not conform to contract - property " + i + " missing");
             return false;
         } else {
             // Check type
             if (typeof(contract[i]) != typeof (object[i])) {
+                DE_AKQUINET.utils.warn("Object not conform to contract - property " + i + " has a type mismatch: "
+                 + typeof(contract[i]) + " != " + typeof (object[i]));
                 return false;
             }
         }
