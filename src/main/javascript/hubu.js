@@ -719,6 +719,41 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     return true;
 };
 
+/**
+ * Logs a message.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.log = function(message){
+  if (console !== undefined && console.error !== undefined) {
+      console.log(message);
+  }
+};
+
+/**
+ * Logs a message using <code>console.error</code>.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.error = function(message){
+  if (console !== undefined  && console.error !== undefined) {
+      console.error(message);
+  }
+};
+
+/**
+ * Logs a message using <code>console.warn</code>.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.warn = function(message){
+  if (console !== undefined && console.warn !== undefined) {
+      console.warn(message);
+  }
+};
 
 /**
  * Utility method to check if the given object
