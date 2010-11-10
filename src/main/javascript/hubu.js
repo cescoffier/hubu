@@ -325,9 +325,9 @@ DE_AKQUINET.hubu = function() {
          * <li>contract</li> : The binding contract (i.e. interface) (optional). The contract is a simple object defining the methods
          * that the destination can invoke on the source. If the source is not conform to the contract, the binding is rejected. The
          * contract is a kind of interface. By default a proxy implementing the contract is injected enforcing the contract-based
-     * interaction. However, you can disable the proxy by setting <tt>proxy:false</tt></li>
-     * <li>proxy</li> : boolean indicating if proxies are enabled or disabled. By default they are enabled if <tt>contract</tt> is
-     * set, however, setting proxy to false enables the injection of a diract reference.
+         * interaction. However, you can disable the proxy by setting <tt>proxy:false</tt></li>
+         * <li>proxy</li> : boolean indicating if proxies are enabled or disabled. By default they are enabled if <tt>contract</tt> is
+         * set, however, setting proxy to false enables the injection of a direct reference.
          * @return the current hub
          */
         bind : function(binding) {
@@ -359,15 +359,15 @@ DE_AKQUINET.hubu = function() {
                 if (! DE_AKQUINET.utils.isObjectConformToContract(component, binding.contract)) {
                     throw "Cannot bind components - 'component' is not conform to the contract";
                 } else {
-          // Do we have to create a proxy ?
-          if (binding.proxy === undefined  || binding.proxy) {
-            // Create the proxy
-            component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
-          } else {
-            // Direct injection
-            // component = component so nothing to do.
-          }
-        }
+                  // Do we have to create a proxy ?
+                  if (binding.proxy === undefined  || binding.proxy) {
+                    // Create the proxy
+                    component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
+                  } else {
+                    // Direct injection
+                    // component = component so nothing to do.
+                  }
+                }
             }
 
             // Get the second component (to)
@@ -537,8 +537,8 @@ DE_AKQUINET.hubu = function() {
 
             // So, here cmp is the component.
             var toRemove = [];
-      var i; // Loop index;
-      var listener;
+            var i; // Loop index;
+            var listener;
             if (callback) {
                 // Must lookup component and callback
                 for (i = 0; i < listeners.length; i++) {
@@ -709,8 +709,8 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
         } else {
             // Check type
             if (typeof(contract[i]) != typeof (object[i])) {
-                DE_AKQUINET.utils.warn("Object not conform to contract - property " + i + " has a type mismatch: "
-                 + typeof(contract[i]) + " != " + typeof (object[i]));
+                DE_AKQUINET.utils.warn("Object not conform to contract - property " + i +
+                    " has a type mismatch: " + typeof(contract[i]) + " != " + typeof (object[i]));
                 return false;
             }
         }
@@ -811,7 +811,7 @@ DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
       proxy[i] = DE_AKQUINET.utils.bind(object, object[i]);
     } else {
       // Everything else is just referenced.
-            proxy[i] = object[i];
+      proxy[i] = object[i];
     }
   }
 
