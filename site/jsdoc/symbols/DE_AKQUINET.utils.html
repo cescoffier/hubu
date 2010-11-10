@@ -269,6 +269,16 @@ already defined, we keep the namespace.
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.bind">bind</a></b>(o, m)
+								</div>
+								<div class="description">Creates a function object calling the
+method m on the object o with the correct parameters.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.clone">clone</a></b>(object)
 								</div>
 								<div class="description">Clones the given object.</div>
@@ -281,6 +291,15 @@ already defined, we keep the namespace.
 								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.createProxyForContract">createProxyForContract</a></b>(contract, object)
 								</div>
 								<div class="description">Creates a proxy hiding the given object.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.error">error</a></b>(message)
+								</div>
+								<div class="description">Logs a message using <code>console.error</code>.</div>
 							</td>
 						</tr>
 					
@@ -310,6 +329,24 @@ is a function.</div>
 								</div>
 								<div class="description">Checks that the given object is conform to the given contract
 The contract is a javascript object.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.log">log</a></b>(message)
+								</div>
+								<div class="description">Logs a message.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.utils.<b><a href="../symbols/DE_AKQUINET.utils.html#.warn">warn</a></b>(message)
+								</div>
+								<div class="description">Logs a message using <code>console.warn</code>.</div>
 							</td>
 						</tr>
 					
@@ -361,6 +398,57 @@ already defined, we keep the namespace.
 				<div class="sectionTitle">
 					Method Detail
 				</div>
+				
+					<a name=".bind"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{Function}</span>
+					<span class="light">DE_AKQUINET.utils.</span><b>bind</b>(o, m)
+					
+					</div>
+					<div class="description">
+						Creates a function object calling the
+method m on the object o with the correct parameters.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>o</b>
+									
+								</dt>
+								<dd>the object</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>m</b>
+									
+								</dt>
+								<dd>the method</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Function}</span> the function calling <code>o.m(arguments)</code></dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
 				
 					<a name=".clone"> </a>
 					<div class="fixedFont">&lt;static&gt; 
@@ -452,6 +540,45 @@ implements the contract (and only the contract).
 								<dd>the proxy</dd>
 							
 							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".error"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.utils.</span><b>error</b>(message)
+					
+					</div>
+					<div class="description">
+						Logs a message using <code>console.error</code>.
+The message is propagated to the console object is this console object
+is defined.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>message</b>
+									
+								</dt>
+								<dd>the message to log</dd>
+							
+							</dl>
+						
+						
+						
+						
 						
 						
 						
@@ -615,6 +742,84 @@ otherwise.</dd>
 						
 						
 
+					<hr />
+				
+					<a name=".log"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.utils.</span><b>log</b>(message)
+					
+					</div>
+					<div class="description">
+						Logs a message.
+The message is propagated to the console object is this console object
+is defined.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>message</b>
+									
+								</dt>
+								<dd>the message to log</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".warn"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.utils.</span><b>warn</b>(message)
+					
+					</div>
+					<div class="description">
+						Logs a message using <code>console.warn</code>.
+The message is propagated to the console object is this console object
+is defined.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>message</b>
+									
+								</dt>
+								<dd>the message to log</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
 					
 				
 			
@@ -625,7 +830,7 @@ otherwise.</dd>
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.0 on Thu Oct 14 2010 11:57:10 GMT+0200 (CEST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.0 on Wed Nov 10 2010 11:27:09 GMT+0100 (CET)
 		</div>
 	</body>
 </html>
