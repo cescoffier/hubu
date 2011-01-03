@@ -855,3 +855,25 @@ DE_AKQUINET.utils.indexOf = function(array, obj) {
         return -1;
   }
 };
+
+/**
+ * Loads a javascript script dynamically.
+ * This method requires the DOM, so cannot be used
+ * in a browser-less environment.
+ * This method does not check if the script was already
+ * loaded.
+ * @param {String} the url of the script
+ * @return true if the script was loaded correctly,
+ * false otherwise
+ */
+DE_AKQUINET.utils.loadScript = function(url) {
+	if (typeof document === "undefined") {
+		return false;
+	}
+	var fileref = document.createElement('script');;
+    fileref.setAttribute("type","text/javascript");
+    fileref.setAttribute("src", url);
+	document.getElementsByTagName("head")[0]
+		.appendChild(fileref);
+	return true;
+};
