@@ -870,7 +870,7 @@ DE_AKQUINET.utils.loadScript = function(url) {
 	if (typeof document === "undefined") {
 		return false;
 	}
-	var fileref = document.createElement('script');;
+	var fileref = document.createElement('script');
     fileref.setAttribute("type","text/javascript");
     fileref.setAttribute("src", url);
 	document.getElementsByTagName("head")[0]
