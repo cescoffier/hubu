@@ -861,4 +861,26 @@
 <span class='line'>854</span>         </span><span class="PUNC">}</span><span class="WHIT">
 <span class='line'>855</span>         </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>856</span>   </span><span class="PUNC">}</span><span class="WHIT">
-<span class='line'>857</span> </span><span class="PUNC">}</span><span class="PUNC">;</span></pre></body></html>
+<span class='line'>857</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>858</span> 
+<span class='line'>859</span> </span><span class="COMM">/**
+<span class='line'>860</span>  * Loads a javascript script dynamically.
+<span class='line'>861</span>  * This method requires the DOM, so cannot be used
+<span class='line'>862</span>  * in a browser-less environment.
+<span class='line'>863</span>  * This method does not check if the script was already
+<span class='line'>864</span>  * loaded.
+<span class='line'>865</span>  * @param {String} the url of the script
+<span class='line'>866</span>  * @return true if the script was loaded correctly,
+<span class='line'>867</span>  * false otherwise
+<span class='line'>868</span>  */</span><span class="WHIT">
+<span class='line'>869</span> </span><span class="NAME">DE_AKQUINET.utils.loadScript</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">url</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>870</span> 	</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">document</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="STRN">"undefined"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>871</span> 		</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>872</span> 	</span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>873</span> 	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">fileref</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">document.createElement</span><span class="PUNC">(</span><span class="STRN">'script'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>874</span>     </span><span class="NAME">fileref.setAttribute</span><span class="PUNC">(</span><span class="STRN">"type"</span><span class="PUNC">,</span><span class="STRN">"text/javascript"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>875</span>     </span><span class="NAME">fileref.setAttribute</span><span class="PUNC">(</span><span class="STRN">"src"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">url</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>876</span> 	</span><span class="NAME">document.getElementsByTagName</span><span class="PUNC">(</span><span class="STRN">"head"</span><span class="PUNC">)</span><span class="PUNC">[</span><span class="NUMB">0</span><span class="PUNC">]</span><span class="WHIT">
+<span class='line'>877</span> 		</span><span class="PUNC">.</span><span class="NAME">appendChild</span><span class="PUNC">(</span><span class="NAME">fileref</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>878</span> 	</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>879</span> </span><span class="PUNC">}</span><span class="PUNC">;</span></pre></body></html>
