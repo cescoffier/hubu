@@ -462,7 +462,6 @@ DE_AKQUINET.hubu = function() {
         },
 
         /**
-         * Work in progress...
          * Registers a configurable listener.
          * @param {DE_AKQUINET.AbstractComponent} component : the component
          * registering the listener
@@ -487,8 +486,8 @@ DE_AKQUINET.hubu = function() {
           // Create the object
           var listener = {
               'component': component,
-              'callback' : callback,
-              'match' : match
+              'callback' : conf.callback,
+              'match' : conf.match
           };
           // Add the object at the end of the listener array
           listeners.push(listener);
