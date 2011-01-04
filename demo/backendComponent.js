@@ -43,13 +43,13 @@ var backendComponent = function() {
    function loggedIn(name) {
        isLoggedIn = true;
        user = name;
-       hub.sendEvent(component, {loggedIn : true});
+       hub.publish(component, "/user/login", {loggedIn : true});
    }
 
    function loggedOut() {
        isLoggedIn = false;
        user = null;
-       hub.sendEvent(component, {loggedIn : false});
+       hub.publish(component, "/user/login", {loggedIn : false});
    }   
    
    return {
@@ -129,7 +129,7 @@ var backendComponent = function() {
         * And so returns immediately.
         */
        logout: function() {
-           setTimeout(loggedOut, 2000);
+           setTimeout(loggedOut, 1000);
            return;
        },
    } 

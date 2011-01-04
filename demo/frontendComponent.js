@@ -45,11 +45,8 @@ var frontendComponent = function() {
     */
    var component = null;
    
-   function match(event) {
-       return (event.loggedIn != null);
-   }
-   
    function callback(event) {
+   	   console.log("receive an event " + event.topic + " - " + event.loggedIn);
        updateStatus(event.loggedIn);
    }
    
@@ -105,7 +102,7 @@ var frontendComponent = function() {
            updateStatus(state);
            
            // Then, we register a listener
-           hub.registerListener(this, match, callback);
+           hub.subscribe(this, "/user/login", callback);
            
            // Finally we register click event
            $(loginId).click(function() {

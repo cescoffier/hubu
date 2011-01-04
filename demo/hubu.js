@@ -109,7 +109,7 @@ DE_AKQUINET.hubu = function() {
             }
 
             // Check match method
-			// We clone the event to avoid modification impact
+      		// We clone the event to avoid modification impact
             var ev = DE_AKQUINET.utils.clone(event);
             ev.source = component;
 
@@ -325,9 +325,9 @@ DE_AKQUINET.hubu = function() {
          * <li>contract</li> : The binding contract (i.e. interface) (optional). The contract is a simple object defining the methods
          * that the destination can invoke on the source. If the source is not conform to the contract, the binding is rejected. The
          * contract is a kind of interface. By default a proxy implementing the contract is injected enforcing the contract-based
-		 * interaction. However, you can disable the proxy by setting <tt>proxy:false</tt></li>
-		 * <li>proxy</li> : boolean indicating if proxies are enabled or disabled. By default they are enabled if <tt>contract</tt> is
-		 * set, however, setting proxy to false enables the injection of a diract reference.
+         * interaction. However, you can disable the proxy by setting <tt>proxy:false</tt></li>
+         * <li>proxy</li> : boolean indicating if proxies are enabled or disabled. By default they are enabled if <tt>contract</tt> is
+         * set, however, setting proxy to false enables the injection of a direct reference.
          * @return the current hub
          */
         bind : function(binding) {
@@ -359,16 +359,15 @@ DE_AKQUINET.hubu = function() {
                 if (! DE_AKQUINET.utils.isObjectConformToContract(component, binding.contract)) {
                     throw "Cannot bind components - 'component' is not conform to the contract";
                 } else {
-					// Do we have to create a proxy ?
-					//TODO This test can be better.
-					if (binding.proxy == null  || binding.proxy) {
-						// Create the proxy
-						component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
-					} else {
-						// Direct injection
-						// component = component so nothing to do.
-					}
-				}
+                  // Do we have to create a proxy ?
+                  if (binding.proxy === undefined  || binding.proxy) {
+                    // Create the proxy
+                    component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
+                  } else {
+                    // Direct injection
+                    // component = component so nothing to do.
+                  }
+                }
             }
 
             // Get the second component (to)
@@ -463,7 +462,6 @@ DE_AKQUINET.hubu = function() {
         },
 
         /**
-         * Work in progress...
          * Registers a configurable listener.
          * @param {DE_AKQUINET.AbstractComponent} component : the component
          * registering the listener
@@ -488,8 +486,8 @@ DE_AKQUINET.hubu = function() {
           // Create the object
           var listener = {
               'component': component,
-              'callback' : callback,
-              'match' : match
+              'callback' : conf.callback,
+              'match' : conf.match
           };
           // Add the object at the end of the listener array
           listeners.push(listener);
@@ -538,8 +536,8 @@ DE_AKQUINET.hubu = function() {
 
             // So, here cmp is the component.
             var toRemove = [];
-			var i; // Loop index;
-			var listener;
+            var i; // Loop index;
+            var listener;
             if (callback) {
                 // Must lookup component and callback
                 for (i = 0; i < listeners.length; i++) {
@@ -586,6 +584,71 @@ DE_AKQUINET.hubu = function() {
 
             return processEvent(component, event);
         },
+
+		/**
+         * Subscribes to a specific topic.
+         * @param {DE_AKQUINET.AbstractComponent} component : the
+         * component registering the listener
+         * @param {String} topic : the topic (Regexp)
+         * @param {Function} callback : the callback method to invoke when
+         * a matching event is sent
+         * @param {Function} filter : optional method to filter received events.
+         */
+		subscribe : function(component, topic, callback, filter) {
+			if (! component || ! topic || ! callback) {
+				return this;
+			}
+
+			var match;
+			var regex = new RegExp(topic);
+			if (!filter  || !DE_AKQUINET.utils.isFunction(filter)) {
+				match = function(event) {
+					return regex.test(event.topic);
+				};
+			} else {
+				match = function(event) {
+					return regex.test(event.topic)  && filter(event);
+				};
+			}
+
+			this.registerConfigurableListener(component, {
+				'match' : match,
+				'callback' : callback,
+				'topic' : topic // Useless but just for information
+			});
+
+			return this;
+
+		},
+
+		/**
+		 * Unsubscribes the subscriber.
+		 * @param {Object} component the component
+		 * @param {Function} callback the registered callback
+		 */
+		unsubscribe : function(component, callback) {
+			return this.unregisterListener(component, callback);
+		},
+
+		/**
+         * Publishes an event to a specific topic.
+         * If component, topic or event is null, the method
+         * does nothing. If not, the event is processed
+         * and sent to all matching listeners.
+         * @param {DE_AKQUINET.AbstractComponent} component
+         * the component sending the event
+         * @param {String} topic the topic
+         * @param {Object} event the event
+         * @return true if the event was delivered to at least
+         * one component, false otherwise
+         */
+		publish : function(component, topic, event) {
+			if (! component || ! topic || ! event) {
+				return false;
+			}
+			event.topic = topic;
+			return this.sendEvent(component, event);
+		},
 
         /**
          * For testing purpose only !
@@ -703,11 +766,15 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     // For all 'properties' from contract, check that the object
     // has an equivalent property
     for (var i in contract) {
-        if (object[i] === null) {
+        // We need to check that the property is defined.
+        if (object[i] === undefined) {
+            DE_AKQUINET.utils.warn("Object not conform to contract - property " + i + " missing");
             return false;
         } else {
             // Check type
             if (typeof(contract[i]) != typeof (object[i])) {
+                DE_AKQUINET.utils.warn("Object not conform to contract - property " + i +
+                    " has a type mismatch: " + typeof(contract[i]) + " != " + typeof (object[i]));
                 return false;
             }
         }
@@ -715,6 +782,41 @@ DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     return true;
 };
 
+/**
+ * Logs a message.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.log = function(message){
+  if (console !== undefined && console.error !== undefined) {
+      console.log(message);
+  }
+};
+
+/**
+ * Logs a message using <code>console.error</code>.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.error = function(message){
+  if (console !== undefined  && console.error !== undefined) {
+      console.error(message);
+  }
+};
+
+/**
+ * Logs a message using <code>console.warn</code>.
+ * The message is propagated to the console object is this console object
+ * is defined.
+ * @param {String} message the message to log
+ */
+DE_AKQUINET.utils.warn = function(message){
+  if (console !== undefined && console.warn !== undefined) {
+      console.warn(message);
+  }
+};
 
 /**
  * Utility method to check if the given object
@@ -735,13 +837,17 @@ DE_AKQUINET.utils.isFunction = function(obj) {
  * @return the cloned object
  */
 DE_AKQUINET.utils.clone = function(object) {
-    var newObj = (object instanceof Array) ? [] : {};
-    for (var i in object) {
-        if (object[i] && typeof object[i] == "object") {
-            newObj[i] = clone(object[i]);
-        }
-        else {
-            newObj[i] = object[i];
+    var i, // index
+        toStr = Object.prototype.toString, // toString method
+        astr = "[object Array]", // The toString returned value for an array.
+        newObj = (toStr.call(object[i] === astr) ? [] : {});
+    for (i in object) {
+        if (object.hasOwnProperty(i)) {
+            if (typeof object[i] === "object") {
+                newObj[i] = DE_AKQUINET.utils.clone(object[i]);
+            } else {
+                newObj[i] = object[i];
+            }
         }
     }
     return newObj;
@@ -755,26 +861,38 @@ DE_AKQUINET.utils.clone = function(object) {
  * @return the proxy
  */
 DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
-	var proxy = {};
-	// We inject the proxied objects
-	proxy.__proxy__ = object;
+  var proxy = {};
+  // We inject the proxied objects
+  proxy.__proxy__ = object;
 
-	for (var i in contract) {
-		if (this.isFunction(contract[i])) {
-			// To call the correct method, we create a new anonymous function
-			// applying the arguments on the function itself
-			// We use apply to pass all arguments, and set the target
-			// The resulting method is stored using the method name in the
-			// proxy object
-			// TODO This method uses 'eval', we should change !
-			proxy[i] = new Function('return this.__proxy__.' + i + '.apply(this.__proxy__, arguments)');
-		} else {
-			// Everything else is just referenced.
-            proxy[i] = object[i];
-		}
-	}
+  for (var i in contract) {
+    if (this.isFunction(contract[i])) {
+      // To call the correct method, we create a new anonymous function
+      // applying the arguments on the function itself
+      // We use apply to pass all arguments, and set the target
+      // The resulting method is stored using the method name in the
+      // proxy object
+      proxy[i] = DE_AKQUINET.utils.bind(object, object[i]);
+    } else {
+      // Everything else is just referenced.
+      proxy[i] = object[i];
+    }
+  }
 
-	return proxy;
+  return proxy;
+};
+
+/**
+ * Creates a function object calling the
+ * method m on the object o with the correct parameters.
+ * @param {Object} o the object
+ * @param {Object} m the method
+ * @return {Function} the function calling <code>o.m(arguments)</code>
+ */
+DE_AKQUINET.utils.bind = function(o, m) {
+    return function() {
+        return m.apply(o, [].slice.call(arguments));
+    };
 };
 
 /**
@@ -789,10 +907,10 @@ DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
  */
 DE_AKQUINET.utils.indexOf = function(array, obj) {
   if (Array.indexOf) {
-	  // We just delegate hoping some native code (optimization)
+    // We just delegate hoping some native code (optimization)
       return array.indexOf(obj);
   } else {
-	  // Simple lookup
+    // Simple lookup
       for(var i = 0; i < array.length; i++){
             if(array[i] == obj){
                 return i;
@@ -800,4 +918,26 @@ DE_AKQUINET.utils.indexOf = function(array, obj) {
         }
         return -1;
   }
+};
+
+/**
+ * Loads a javascript script dynamically.
+ * This method requires the DOM, so cannot be used
+ * in a browser-less environment.
+ * This method does not check if the script was already
+ * loaded.
+ * @param {String} the url of the script
+ * @return true if the script was loaded correctly,
+ * false otherwise
+ */
+DE_AKQUINET.utils.loadScript = function(url) {
+	if (typeof document === "undefined") {
+		return false;
+	}
+	var fileref = document.createElement('script');
+    fileref.setAttribute("type","text/javascript");
+    fileref.setAttribute("src", url);
+	document.getElementsByTagName("head")[0]
+		.appendChild(fileref);
+	return true;
 };
