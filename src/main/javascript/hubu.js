@@ -585,6 +585,71 @@ DE_AKQUINET.hubu = function() {
             return processEvent(component, event);
         },
 
+		/**
+         * Subscribes to a specific topic.
+         * @param {DE_AKQUINET.AbstractComponent} component : the
+         * component registering the listener
+         * @param {String} topic : the topic (Regexp)
+         * @param {Function} callback : the callback method to invoke when
+         * a matching event is sent
+         * @param {Function} filter : optional method to filter received events.
+         */
+		subscribe : function(component, topic, callback, filter) {
+			if (! component || ! topic || ! callback) {
+				return this;
+			}
+
+			var match;
+			var regex = new RegExp(topic);
+			if (!filter  || !DE_AKQUINET.utils.isFunction(filter)) {
+				match = function(event) {
+					return regex.test(event.topic);
+				};
+			} else {
+				match = function(event) {
+					return regex.test(event.topic)  && filter(event);
+				};
+			}
+
+			this.registerConfigurableListener(component, {
+				'match' : match,
+				'callback' : callback,
+				'topic' : topic // Useless but just for information
+			});
+
+			return this;
+
+		},
+
+		/**
+		 * Unsubscribes the subscriber.
+		 * @param {Object} component the component
+		 * @param {Function} callback the registered callback
+		 */
+		unsubscribe : function(component, callback) {
+			return this.unregisterListener(component, callback);
+		},
+
+		/**
+         * Publishes an event to a specific topic.
+         * If component, topic or event is null, the method
+         * does nothing. If not, the event is processed
+         * and sent to all matching listeners.
+         * @param {DE_AKQUINET.AbstractComponent} component
+         * the component sending the event
+         * @param {String} topic the topic
+         * @param {Object} event the event
+         * @return true if the event was delivered to at least
+         * one component, false otherwise
+         */
+		publish : function(component, topic, event) {
+			if (! component || ! topic || ! event) {
+				return false;
+			}
+			event.topic = topic;
+			return this.sendEvent(component, event);
+		},
+
         /**
          * For testing purpose only !
          * Resets the hub.
