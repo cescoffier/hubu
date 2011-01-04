@@ -370,6 +370,15 @@ This module defines the H-UBU framework.
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.publish">publish</a></b>(component, topic, event)
+								</div>
+								<div class="description">Publishes an event to a specific topic.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.registerComponent">registerComponent</a></b>(component, configuration)
 								</div>
 								<div class="description">Registers a new component on the hub.</div>
@@ -381,7 +390,7 @@ This module defines the H-UBU framework.
 							<td class="nameDescription">
 								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.registerConfigurableListener">registerConfigurableListener</a></b>(component, conf)
 								</div>
-								<div class="description">Work in progress.</div>
+								<div class="description">Registers a configurable listener.</div>
 							</td>
 						</tr>
 					
@@ -434,6 +443,15 @@ Resets the hub.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.subscribe">subscribe</a></b>(component, topic, callback, filter)
+								</div>
+								<div class="description">Subscribes to a specific topic.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.unregisterComponent">unregisterComponent</a></b>(component)
 								</div>
 								<div class="description">Unregisters the given component.</div>
@@ -446,6 +464,15 @@ Resets the hub.</div>
 								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.unregisterListener">unregisterListener</a></b>(component, callback)
 								</div>
 								<div class="description">Unregisters listeners for the given component.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">DE_AKQUINET.hubu.<b><a href="../symbols/DE_AKQUINET.hubu.html#.unsubscribe">unsubscribe</a></b>(component, callback)
+								</div>
+								<div class="description">Unsubscribes the subscriber.</div>
 							</td>
 						</tr>
 					
@@ -851,6 +878,66 @@ component, false otherwise.</dd>
 
 					<hr />
 				
+					<a name=".publish"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.hubu.</span><b>publish</b>(component, topic, event)
+					
+					</div>
+					<div class="description">
+						Publishes an event to a specific topic.
+If component, topic or event is null, the method
+does nothing. If not, the event is processed
+and sent to all matching listeners.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/DE_AKQUINET.AbstractComponent.html#constructor">DE_AKQUINET.AbstractComponent</a>}</span> <b>component</b>
+									
+								</dt>
+								<dd>the component sending the event</dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>topic</b>
+									
+								</dt>
+								<dd>the topic</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>event</b>
+									
+								</dt>
+								<dd>the event</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>true if the event was delivered to at least
+one component, false otherwise</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name=".registerComponent"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -917,8 +1004,7 @@ takes this name.</dd>
 					
 					</div>
 					<div class="description">
-						Work in progress...
-Registers a configurable listener.
+						Registers a configurable listener.
 						
 						
 					</div>
@@ -1158,6 +1244,63 @@ If the hub is not started, this methods does nothing.
 
 					<hr />
 				
+					<a name=".subscribe"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.hubu.</span><b>subscribe</b>(component, topic, callback, filter)
+					
+					</div>
+					<div class="description">
+						Subscribes to a specific topic.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/DE_AKQUINET.AbstractComponent.html#constructor">DE_AKQUINET.AbstractComponent</a>}</span> <b>component</b>
+									
+								</dt>
+								<dd>: the
+component registering the listener</dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>topic</b>
+									
+								</dt>
+								<dd>: the topic (Regexp)</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>callback</b>
+									
+								</dt>
+								<dd>: the callback method to invoke when
+a matching event is sent</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>filter</b>
+									
+								</dt>
+								<dd>: optional method to filter received events.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name=".unregisterComponent"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -1261,6 +1404,49 @@ If 'component' is null, this methods does nothing.
 						
 						
 
+					<hr />
+				
+					<a name=".unsubscribe"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">DE_AKQUINET.hubu.</span><b>unsubscribe</b>(component, callback)
+					
+					</div>
+					<div class="description">
+						Unsubscribes the subscriber.
+						
+						
+					</div>
+					
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>component</b>
+									
+								</dt>
+								<dd>the component</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>callback</b>
+									
+								</dt>
+								<dd>the registered callback</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
 					
 				
 			
@@ -1271,7 +1457,7 @@ If 'component' is null, this methods does nothing.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.0 on Mon Jan 03 2011 11:45:04 GMT+0100 (CET)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.0.0 on Tue Jan 04 2011 17:02:26 GMT+0100 (CET)
 		</div>
 	</body>
 </html>
