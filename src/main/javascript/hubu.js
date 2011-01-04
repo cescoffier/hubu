@@ -109,7 +109,7 @@ DE_AKQUINET.hubu = function() {
             }
 
             // Check match method
-      // We clone the event to avoid modification impact
+			// We clone the event to avoid modification impact
             var ev = DE_AKQUINET.utils.clone(event);
             ev.source = component;
 
