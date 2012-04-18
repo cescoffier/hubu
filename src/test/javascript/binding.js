@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
-load(basePath + "hubu.js");
+describe("Direct binding Test Suite", function () {
 
-function testBindUsingFunctionPointer() {
+    afterEach(function () {
         hub.reset();
+    });
+
+    it("should support binding using a function pointer", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -49,18 +52,17 @@ function testBindUsingFunctionPointer() {
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
+            expect(cmps.length).toBe(2);
 
             // Check the binding
-            assertEquals(dest.component, source);
+            expect(dest.component).toBe(source);
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            jasmine.log(e);
+            this.fail("Unexpected error " + e);
         }
-    }
+    })
 
-function testBindWithFunctionName() {
-        hub.reset();
+    it("should support binding with a method name", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -93,18 +95,17 @@ function testBindWithFunctionName() {
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
+            expect(cmps.length).toBe(2);
 
             // Check the binding
-            assertEquals(dest.component, source);
+            expect(dest.component).toBe(source);
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            jasmine.log(e);
+            this.fail("Unexpected error " + e);
         }
-    }
+    })
 
-function testBindUsingExistingMember() {
-        hub.reset();
+    it("should support binding using an existing field (member)", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -120,7 +121,7 @@ function testBindUsingExistingMember() {
             },
             start: function() { },
             stop: function() { },
-            configure: function(hub) { },
+            configure: function(hub) { }
         };
 
         try {
@@ -134,18 +135,17 @@ function testBindUsingExistingMember() {
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
+            expect(cmps.length).toBe(2);
 
             // Check the binding
-            assertEquals(dest.component, source);
+            expect(dest.component).toBe(source);
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            jasmine.log(e);
+            this.fail("Unexpected error " + e);
         }
-    }
+    })
 
-function testBindUsingNonExistingMember() {
-        hub.reset();
+    it("should support binding into a non-existing field (member)", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -160,7 +160,7 @@ function testBindUsingNonExistingMember() {
             },
             start: function() { },
             stop: function() { },
-            configure: function(hub) { },
+            configure: function(hub) { }
         };
 
         try {
@@ -174,18 +174,17 @@ function testBindUsingNonExistingMember() {
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
+            expect(cmps.length).toBe(2);
 
             // Check the binding
-            assertEquals(dest.component, source);
+            expect(dest.component).toBe(source);
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            jasmine.log(e);
+            this.fail("Unexpected error " + e);
         }
-    }
+    })
 
-function testBindLookupUsingString() {
-        hub.reset();
+    it("should support binding using a string indicating the placeholder", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -218,18 +217,17 @@ function testBindLookupUsingString() {
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
+            expect(cmps.length).toBe(2);
 
             // Check the binding
-            assertEquals(dest.component, source);
+            expect(dest.component).toBe(source);
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            jasmine.log(e);
+            this.fail("Unexpected error " + e);
         }
-    }
+    })
 
-function testMissingComponent() {
-        hub.reset();
+    it("should detect binding using a missing component as destination", function() {
         var source = {
             getComponentName: function() {
                 return 'source';
@@ -245,21 +243,20 @@ function testMissingComponent() {
                 .registerComponent(source)
                 .bind({
                     component: 'source',
-                    to: 'destination',
+                    to: 'missing',
                     into: 'bind'
                 })
                 .start();
-            fail("unexpected accepted binding");
+            this.fail("unexpected accepted binding");
         } catch (e) {
-        	// OK
+            // OK
         }
-    }
+    })
 
-function testBindFromMissingComponent() {
-        hub.reset();
-        var destination = {
+    it("should detect binding using a missing component as source", function() {
+        var dest = {
             getComponentName: function() {
-                return 'destination';
+                return 'dest';
             },
             start: function() { },
             stop: function() { },
@@ -269,27 +266,25 @@ function testBindFromMissingComponent() {
 
         try {
             hub
-                .registerComponent(destination)
+                .registerComponent(dest)
                 .bind({
-                    component: 'source',
-                    to: 'destination',
+                    component: 'missing',
+                    to: 'dest',
                     into: 'bind'
                 })
                 .start();
-            fail("unexpected accepted binding");
+            this.fail("unexpected accepted binding");
         } catch (e) {
-        	// OK
+            // OK
         }
-    }
+    })
 
-
-function testBindWithValidContractWithoutProxy() {
-        hub.reset();
-		// Contract definition
-		var contract = {
-			hello : function() { },
-			sayHelloTo : function(name) { }
-		}
+    it("should support contract-based binding with default proxy", function() {
+        // Contract definition
+        var contract = {
+            hello : function() { },
+            sayHelloTo : function(name) { }
+        }
 
         var source = {
             getComponentName: function() {
@@ -298,10 +293,10 @@ function testBindWithValidContractWithoutProxy() {
             start: function() { },
             stop: function() { },
             configure: function(hub) { },
-			// Contract implementation
-			hello: function() { },
-			sayHelloTo : function(name) { this.name = name },
-			name: null
+            // Contract implementation
+            hello: function() { },
+            sayHelloTo : function(name) { this.name = name },
+            name: null
         };
         var dest = {
             component : null,
@@ -314,9 +309,9 @@ function testBindWithValidContractWithoutProxy() {
             bind : function(cmp) {
                 this.component = cmp;
             },
-			invoke: function() {
-				this.component.sayHelloTo("me");
-			}
+            invoke: function() {
+                this.component.sayHelloTo("me");
+            }
         };
 
         try {
@@ -327,34 +322,30 @@ function testBindWithValidContractWithoutProxy() {
                     component: 'source',
                     to: 'destination',
                     into: dest.bind,
-					contract: contract
+                    contract: contract
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
 
             // Check the binding
-			// ATTENTION __proxy__ is an implementation detail
-            assertEquals(dest.component.__proxy__, source);
+            // ATTENTION __proxy__ is an implementation detail
+            expect(dest.component.__proxy__).toBe(source);
 
-			// Check contract compliance
-			dest.invoke();
-			assertEquals(source.name, "me");
+            // Check contract compliance
+            dest.invoke();
+            expect(source.name).toBe("me");
 
         } catch (e) {
-            //console.log(e);
-            //fail("Unexpected error " + e);
-			throw e;
+            this.fail(e);
         }
-    }
+    })
 
-function testBindWithValidContractAndProxy() {
-        hub.reset();
-		// Contract definition
-		var contract = {
-			hello : function() { },
-			sayHelloTo : function(name) { }
-		}
+    it("should support contract-based binding with proxy", function() {
+        // Contract definition
+        var contract = {
+            hello : function() { },
+            sayHelloTo : function(name) { }
+        }
 
         var source = {
             getComponentName: function() {
@@ -363,10 +354,10 @@ function testBindWithValidContractAndProxy() {
             start: function() { },
             stop: function() { },
             configure: function(hub) { },
-			// Contract implementation
-			hello: function() { },
-			sayHelloTo : function(name) { this.name = name },
-			name: null
+            // Contract implementation
+            hello: function() { },
+            sayHelloTo : function(name) { this.name = name },
+            name: null
         };
         var dest = {
             component : null,
@@ -379,9 +370,9 @@ function testBindWithValidContractAndProxy() {
             bind : function(cmp) {
                 this.component = cmp;
             },
-			invoke: function() {
-				this.component.sayHelloTo("me");
-			}
+            invoke: function() {
+                this.component.sayHelloTo("me");
+            }
         };
 
         try {
@@ -392,34 +383,31 @@ function testBindWithValidContractAndProxy() {
                     component: 'source',
                     to: 'destination',
                     into: dest.bind,
-					contract: contract,
-					proxy : true
+                    contract: contract,
+                    proxy : true
                 })
                 .start();
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
 
             // Check the binding
-			// ATTENTION __proxy__ is an implementation detail
-            assertEquals(dest.component.__proxy__, source);
+            // ATTENTION __proxy__ is an implementation detail
+            expect(dest.component.__proxy__).toBe(source);
 
-			// Check contract compliance
-			dest.invoke();
-			assertEquals(source.name, "me");
+            // Check contract compliance
+            dest.invoke();
+            expect(source.name).toBe("me");
 
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e);
+            this.fail(e);
         }
-    }
+    })
 
-function testBindWithValidContractWithProxyDisabled()  {
-        hub.reset();
-		// Contract definition
-		var contract = {
-			hello : function() { },
-			sayHelloTo : function(name) { }
-		}
+    it("should support contract-based binding without proxy", function() {
+        // Contract definition
+        var contract = {
+            hello : function() { },
+            sayHelloTo : function(name) { }
+        }
 
         var source = {
             getComponentName: function() {
@@ -428,10 +416,10 @@ function testBindWithValidContractWithProxyDisabled()  {
             start: function() { },
             stop: function() { },
             configure: function(hub) { },
-			// Contract implementation
-			hello: function() { },
-			sayHelloTo : function(name) { this.name = name },
-			name: null
+            // Contract implementation
+            hello: function() { },
+            sayHelloTo : function(name) { this.name = name },
+            name: null
         };
         var dest = {
             component : null,
@@ -444,13 +432,12 @@ function testBindWithValidContractWithProxyDisabled()  {
             bind : function(cmp) {
                 this.component = cmp;
             },
-			invoke: function() {
-				this.component.sayHelloTo("me");
-			}
+            invoke: function() {
+                this.component.sayHelloTo("me");
+            }
         };
 
         try {
-        	warn("plop");
             hub
                 .registerComponent(source)
                 .registerComponent(dest)
@@ -458,35 +445,33 @@ function testBindWithValidContractWithProxyDisabled()  {
                     component: 'source',
                     to: 'destination',
                     into: dest.bind,
-					contract: contract,
-					proxy: false
+                    contract: contract,
+                    proxy : false
                 })
                 .start();
-            warn("started");
             var cmps = hub.getComponents();
-            assertEquals(2, cmps.length);
-            info("plop", "here");
-            // Check the binding
-            assertEquals(dest.component, source);
 
-			// Check contract compliance
-			dest.invoke();
-			assertEquals(source.name, "me");
+            // Check the binding
+            // ATTENTION __proxy__ is an implementation detail
+            // No proxy.
+            expect(dest.component.__proxy__).toBeUndefined();
+            expect(dest.component).toBe(source);
+
+            // Check contract compliance
+            dest.invoke();
+            expect(source.name).toBe("me");
 
         } catch (e) {
-            console.log(e);
-            fail("Unexpected error " + e.message);
+            this.fail(e);
         }
-    }
+    })
 
-function testBindWithInvalidContract() {
-        hub.reset();
-
-		// Contract definition
-		var contract = {
-			hello : function() { },
-			sayHelloTo : function(name) { }
-		}
+    it("should detect bindings with a non-implemented contract", function() {
+        // Contract definition
+        var contract = {
+            hello : function() { },
+            sayHelloTo : function(name) { }
+        }
 
         var source = {
             getComponentName: function() {
@@ -495,9 +480,9 @@ function testBindWithInvalidContract() {
             start: function() { },
             stop: function() { },
             configure: function(hub) { },
-			// Contract implementation, hello is missing.
-			sayHelloTo : function(name) { this.name = name },
-			name: null
+            // Contract implementation, hello is missing.
+            sayHelloTo : function(name) { this.name = name },
+            name: null
         };
 
         var destination = {
@@ -518,14 +503,12 @@ function testBindWithInvalidContract() {
                     component: 'source',
                     to: 'destination',
                     into: 'bind',
-					contract: contract
+                    contract: contract
                 })
                 .start();
-            fail("unexpected accepted binding");
+            this.fail("unexpected accepted binding");
         } catch (e) {
             // ok(true, "binding rejected as expected : " + e);
         }
-    }
-
-
-
+    })
+});

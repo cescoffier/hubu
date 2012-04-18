@@ -13,139 +13,139 @@
  * limitations under the License.
  */
 
-load(basePath + "hubu.js");
-load("src/test/resources/mootools-core-1.4.5-full-nocompat.js");
+describe("Mootools Support Test Suite", function () {
 
-function testMooToolsComponent() {
-    hub.reset();
-    var Barn = new Class({
-
-        call : 0,
-
-        initialize: function() {
-
-        },
-
-        getComponentName : function() {
-            return 'Barn';
-        },
-
-        start : function() {
-        },
-
-        stop : function() {
-        },
-
-        configure : function(hub) {
-            this.call = this.call + 1;
-        },
-
-        getFowl: function(){
-            return this.fowl;
-        },
-
-        setFowl: function(name){
-            this.fowl = name;
-            return this;
-        }
-
-    });
-    var myBarn = new Barn();
-
-    try {
-        hub.registerComponent(myBarn);
-        var cmps = hub.getComponents();
-        assertEquals(1, cmps.length);
-        assertEquals(myBarn, hub.getComponent('Barn'));
-
-        // Check that configure was called
-        assertEquals(1, myBarn.call);
-        hub.getComponent("Barn").setFowl("Clement");
-        assertEquals("Clement", hub.getComponent("Barn").getFowl());
-    } catch (e) {
-        console.log(e);
-        fail("Unexpected component reject");
-    }
-}
-
-function testMooToolsComponentBindings() {
-    hub.reset();
-    var Ted = new Class({
-
-        call : 0,
-        friend : null, // Injected
-
-        initialize: function() {
-
-        },
-
-        getComponentName : function() {
-            return 'Ted';
-        },
-
-        start : function() {
-        },
-
-        stop : function() {
-        },
-
-        configure : function(hub) {
-            this.call = this.call + 1;
-        },
-
-        getFriend: function(){
-            return this.friend;
-        }
-
+    afterEach(function () {
+        hub.reset();
     });
 
-    var Marshall = new Class({
+    it("should let Mootools objects be components", function() {
+        var Barn = new Class({
 
-        call : 0,
+            call : 0,
 
-        initialize: function() {
+            initialize: function() {
 
-        },
+            },
 
-        getComponentName : function() {
-            return 'Marshall';
-        },
+            getComponentName : function() {
+                return 'Barn';
+            },
 
-        start : function() {
-        },
+            start : function() {
+            },
 
-        stop : function() {
-        },
+            stop : function() {
+            },
 
-        configure : function(hub) {
-            this.call = this.call + 1;
-        },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            },
 
-        getName: function(){
-            return "Marshall";
+            getFowl: function(){
+                return this.fowl;
+            },
+
+            setFowl: function(name){
+                this.fowl = name;
+                return this;
+            }
+
+        });
+        var myBarn = new Barn();
+
+        try {
+            hub.registerComponent(myBarn);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(hub.getComponent('Barn')).toBe(myBarn);
+            expect(myBarn.call).toBe(1);
+
+            hub.getComponent("Barn").setFowl("Clement");
+            expect(hub.getComponent("Barn").getFowl()).toBe("Clement");
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
         }
+    })
 
-    });
+    it("should let Mootools components be bound", function() {
+        var Ted = new Class({
 
-    var ted = new Ted();
-    var marshall = new Marshall();
+            call : 0,
+            friend : null, // Injected
 
-    try {
-        hub.registerComponent(ted)
-            .registerComponent(marshall)
-            .bind({
-                component: marshall,
-                to: ted,
-                into: "friend"
-            });
+            initialize: function() {
 
-        var cmps = hub.getComponents();
-        assertEquals(2, cmps.length);
+            },
 
-        assertEquals("Marshall", hub.getComponent("Ted").getFriend().getName());
+            getComponentName : function() {
+                return 'Ted';
+            },
 
-    } catch (e) {
-        console.log(e);
-        fail("Unexpected component reject");
-    }
-}
+            start : function() {
+            },
+
+            stop : function() {
+            },
+
+            configure : function(hub) {
+                this.call = this.call + 1;
+            },
+
+            getFriend: function(){
+                return this.friend;
+            }
+
+        });
+
+        var Marshall = new Class({
+
+            call : 0,
+
+            initialize: function() {
+
+            },
+
+            getComponentName : function() {
+                return 'Marshall';
+            },
+
+            start : function() {
+            },
+
+            stop : function() {
+            },
+
+            configure : function(hub) {
+                this.call = this.call + 1;
+            },
+
+            getName: function(){
+                return "Marshall";
+            }
+
+        });
+
+        var ted = new Ted();
+        var marshall = new Marshall();
+
+        try {
+            hub.registerComponent(ted)
+                .registerComponent(marshall)
+                .bind({
+                    component: marshall,
+                    to: ted,
+                    into: "friend"
+                });
+
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(2);
+            expect(hub.getComponent("Ted").getFriend().getName()).toBe("Marshall");
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
+
+});

@@ -13,392 +13,395 @@
  * limitations under the License.
  */
 
-load(basePath + "hubu.js");
+describe("Component Mechanism Test Suite", function () {
 
-function testEmptyHub() {
-	hub.reset();
-	var cmps = hub.getComponents();
-	assertEquals(0, cmps.length);
-}
+    afterEach(function () {
+        hub.reset();
+    });
 
-function testGetMissingComponent() {
-	hub.reset();
-	var cmp = hub.getComponent('foo');
-	assertEquals(null, cmp);
+    it("should be empty", function () {
+        var cmps = hub.getComponents();
+        expect(cmps.length).toBe(0);
+    });
 
-	cmp = hub.getComponent('');
-	assertEquals(null, cmp);
+    it("should not find undeclared component", function () {
+        var cmp = hub.getComponent('foo');
+        expect(cmp).toBeNull();
 
-	cmp = hub.getComponent();
-	assertEquals(null, cmp);
-}
+        cmp = hub.getComponent('');
+        expect(cmp).toBeNull();
 
-function testInvalidComponent() {
-	hub.reset();
-	var cmp = {
-		getComponentName : function() {
-			return 'foo';
-		}
-	};
+        cmp = hub.getComponent();
+        expect(cmp).toBeNull();
+    });
 
-	try {
-		hub.registerComponent(cmp);
-		fail("Unexpected registration");
-	} catch (e) {
-		console.log(e);
-	}
-}
+    it("should reject invalid component", function () {
+        var cmp = {
+            getComponentName:function () {
+                return 'foo';
+            }
+        };
 
-function testAComponent() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+        try {
+            hub.registerComponent(cmp);
+            fail("Unexpected registration");
+        } catch (e) {
+            // OK
+        }
+    })
 
-	try {
-		hub.registerComponent(cmp);
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
+    it("should accept this component", function () {
+        var cmp = {
+            call:0,
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+            },
+            configure:function (hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		// Check that configure was called
-		assertEquals(1, cmp.call);
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+        try {
+            hub.registerComponent(cmp);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1)
+            expect(cmp).toBe(hub.getComponent('foo'));
 
-function testComponentWithConfiguration() {
-	hub.reset();
-	var cmp = {
-		conf : {},
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub, configuration) {
-			this.conf = configuration;
-			this.conf.hub = hub;
-		}
-	};
+            // Check that configure was called
+            expect(cmp.call, 1);
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-	try {
-		hub.registerComponent(cmp, {
-			foo : 'bar'
-		});
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
+    it("Should call configure with the right configuration", function () {
+        var cmp = {
+            conf:{},
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+            },
+            configure:function (hub, configuration) {
+                this.conf = configuration;
+                this.conf.hub = hub;
+            }
+        };
 
-		// Check the configuration
-		assertEquals('bar', cmp.conf.foo);
-		assertEquals(hub, cmp.conf.hub);
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+        try {
+            hub.registerComponent(cmp, {
+                foo:'bar'
+            });
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(cmp).toBe(hub.getComponent('foo'));
 
-function testComponentConfigurationWithNameReconfiguration() {
-	hub.reset();
-	var cmp = {
-		conf : {},
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub, configuration) {
-			this.conf = configuration;
-			this.conf.hub = hub;
-		}
-	};
+            // Check the configuration
+            expect(cmp.conf.foo).toBe('bar');
+            expect(cmp.conf.hub).toBe(hub);
 
-	try {
-		hub.registerComponent(cmp, {
-			foo : 'bar',
-			component_name : 'mycomponent'
-		});
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('mycomponent'));
-		assertEquals(null, hub.getComponent('foo'))
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-		// Check the configuration
-		assertEquals('bar', cmp.conf.foo);
-		assertEquals(hub, cmp.conf.hub);
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+    it("should apply the name included in the configuration", function () {
+        var cmp = {
+            conf:{},
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+            },
+            configure:function (hub, configuration) {
+                this.conf = configuration;
+                this.conf.hub = hub;
+            }
+        };
 
-function testAComponentTwice() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+        try {
+            hub.registerComponent(cmp, {
+                foo:'bar',
+                component_name:'mycomponent'
+            });
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(hub.getComponent('mycomponent')).toBe(cmp);
+            expect(hub.getComponent('foo')).toBeNull();
 
-	try {
-		hub.registerComponent(cmp);
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(1, cmp.call);
+            // Check the configuration
+            expect(cmp.conf.foo).toBe('bar');
+            expect(cmp.conf.hub).toBe(hub);
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-		hub.registerComponent(cmp);
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(1, cmp.call);
+    it("should not accept a component declared twice", function () {
+        var cmp = {
+            call:0,
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+            },
+            configure:function (hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+        try {
+            hub.registerComponent(cmp);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(cmp).toBe(hub.getComponent('foo'));
+            expect(cmp.call).toBe(1);
 
-function testRemoveUsingComponent() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		stop_call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-			this.stop_call++
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+            hub.registerComponent(cmp);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(cmp).toBe(hub.getComponent('foo'));
+            expect(cmp.call).toBe(1);
 
-	try {
-		hub.registerComponent(cmp);
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(1, cmp.call);
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-		hub.unregisterComponent(cmp);
-		assertEquals(0, cmps.length);
-		assertEquals(null, hub.getComponent('foo'));
-		assertEquals(1, cmp.stop_call); // Check that stop was called.
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+    it("should support removing component using the component object", function () {
+        var cmp = {
+            call:0,
+            stop_call:0,
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+                this.stop_call++
+            },
+            configure:function (hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-function removeUsingComponentName() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+        try {
+            hub.registerComponent(cmp);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(cmp).toBe(hub.getComponent('foo'));
+            expect(cmp.call).toBe(1);
 
-	try {
-		hub.registerComponent(cmp);
-		var cmps = hub.getComponents();
-		assertEquals(1, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(1, cmp.call);
+            hub.unregisterComponent(cmp);
+            expect(cmps.length).toBe(0);
+            expect(hub.getComponent('foo')).toBeNull();
+            expect(cmp.stop_call).toBe(1); // Check that stop was called.
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-		hub.unregisterComponent('foo');
-		assertEquals(0, cmps.length);
-		assertEquals(null, hub.getComponent('foo'));
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+    it("should support removing component using the component name", function () {
+        var cmp = {
+            call:0,
+            stop_call:0,
+            getComponentName:function () {
+                return 'foo';
+            },
+            start:function () {
+            },
+            stop:function () {
+                this.stop_call++
+            },
+            configure:function (hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-function testTwoRegistrations() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+        try {
+            hub.registerComponent(cmp);
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(1);
+            expect(cmp).toBe(hub.getComponent('foo'));
+            expect(cmp.call).toBe(1);
 
-	var cmp2 = {
-		call : 0,
-		getComponentName : function() {
-			return 'bar';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+            hub.unregisterComponent('foo');
+            expect(cmps.length).toBe(0);
+            expect(hub.getComponent('foo')).toBeNull();
+            expect(cmp.stop_call).toBe(1); // Check that stop was called.
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-	try {
-		hub.registerComponent(cmp);
-		hub.registerComponent(cmp2);
+    it("should accept several components", function() {
+        var cmp = {
+            call : 0,
+            getComponentName : function() {
+                return 'foo';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		var cmps = hub.getComponents();
-		assertEquals(2, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(cmp2, hub.getComponent('bar'));
-		assertEquals(1, cmp.call);
-		assertEquals(1, cmp2.call);
+        var cmp2 = {
+            call : 0,
+            getComponentName : function() {
+                return 'bar';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		hub.unregisterComponent('foo');
-		assertEquals(1, cmps.length);
-		assertEquals(null, hub.getComponent('foo'));
-		assertEquals(cmp2, hub.getComponent('bar'));
+        try {
+            hub.registerComponent(cmp);
+            hub.registerComponent(cmp2);
 
-		hub.unregisterComponent('bar');
-		assertEquals(0, cmps.length);
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(2);
+            expect(hub.getComponent('foo')).toBe(cmp);
+            expect(hub.getComponent('bar')).toBe(cmp2);
+            expect(cmp.call).toBe(1);
+            expect(cmp2.call).toBe(1);
 
-function testRegistrationChaining() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+            hub.unregisterComponent('foo');
+            expect(cmps.length).toBe(1);
+            expect(hub.getComponent('foo')).toBeNull();
+            expect(hub.getComponent('bar')).toBe(cmp2);
 
-	var cmp2 = {
-		call : 0,
-		getComponentName : function() {
-			return 'bar';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+            hub.unregisterComponent('bar');
+            expect(cmps.length).toBe(0);
+            expect(hub.getComponent('foo')).toBeNull();
+            expect(hub.getComponent('bar')).toBeNull();
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-	try {
-		hub.registerComponent(cmp).registerComponent(cmp2);
+    it("should support code 'chains'", function() {
+        var cmp = {
+            call : 0,
+            getComponentName : function() {
+                return 'foo';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		var cmps = hub.getComponents();
-		assertEquals(2, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(cmp2, hub.getComponent('bar'));
-		assertEquals(1, cmp.call);
-		assertEquals(1, cmp2.call);
+        var cmp2 = {
+            call : 0,
+            getComponentName : function() {
+                return 'bar';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		hub.unregisterComponent('foo').unregisterComponent('bar');
+        try {
+            hub
+                .registerComponent(cmp)
+                .registerComponent(cmp2);
 
-		assertEquals(0, cmps.length);
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(2);
+            expect(hub.getComponent('foo')).toBe(cmp);
+            expect(hub.getComponent('bar')).toBe(cmp2);
+            expect(cmp.call).toBe(1);
+            expect(cmp2.call).toBe(1);
 
-function testStartStop() {
-	hub.reset();
-	var cmp = {
-		call : 0,
-		getComponentName : function() {
-			return 'foo';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+            hub
+                .unregisterComponent('foo')
+                .unregisterComponent('bar');
+            expect(cmps.length).toBe(0);
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
 
-	var cmp2 = {
-		call : 0,
-		getComponentName : function() {
-			return 'bar';
-		},
-		start : function() {
-		},
-		stop : function() {
-		},
-		configure : function(hub) {
-			this.call = this.call + 1;
-		}
-	};
+    it("should support start-stop cycle", function() {
+        var cmp = {
+            call : 0,
+            getComponentName : function() {
+                return 'foo';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-	try {
-		hub.registerComponent(cmp).registerComponent(cmp2);
+        var cmp2 = {
+            call : 0,
+            getComponentName : function() {
+                return 'bar';
+            },
+            start : function() {
+            },
+            stop : function() {
+            },
+            configure : function(hub) {
+                this.call = this.call + 1;
+            }
+        };
 
-		var cmps = hub.getComponents();
-		assertEquals(2, cmps.length);
-		assertEquals(cmp, hub.getComponent('foo'));
-		assertEquals(cmp2, hub.getComponent('bar'));
-		assertEquals(1, cmp.call);
-		assertEquals(1, cmp2.call);
+        try {
+            hub.registerComponent(cmp).registerComponent(cmp2);
 
-		hub.start();
-		hub.stop();
+            var cmps = hub.getComponents();
+            expect(cmps.length).toBe(2);
+            expect(hub.getComponent('foo')).toBe(cmp);
+            expect(hub.getComponent('bar')).toBe(cmp2);
+            expect(cmp.call).toBe(1);
+            expect(cmp2.call).toBe(1);
 
-	} catch (e) {
-		console.log(e);
-		fail("Unexpected component reject");
-	}
-}
+            hub.start();
+            hub.stop();
+
+        } catch (e) {
+            jasmine.log(e);
+            this.fail("Unexpected component reject");
+        }
+    })
+});
+
