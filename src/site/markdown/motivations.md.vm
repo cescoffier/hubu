@@ -1,0 +1,23 @@
+Motivations - Why H-UBU ?
+====================
+
+During the development of a project relying on javascript, we realized that the growth of the javascript code decrease
+our efficiency. Not because javascript is verbose, but because the application UI starts to be huge and complex.
+
+However, without good practice, this javascript code starts to be really messy, and close to be un-manageable.
+
+Those issues comes from several points:
+
+ * We were not javascript experts
+ * Javascript is great, gives a lot of flexibility ... but too much flexibility is evil !
+ * Playing with function pointer is great ... but may break layeredd architecture
+ * Javascript heavily relies on asynchronous callbacks, as async implies spaghettis (look at ESBs, you will quickly understand)
+ * Javascript is not modular, and in fact, it generally ends with one big javascript file. Obviously, concurrent development on one file is bad
+ * Javascript does not have an interface concept, making hard to understand public API and implementation details
+ * No scoping : in Javascript by default everything is public ... Great for naming conflicts
+ * No tests... well... what and how to test
+
+So after reflection, we try to look how to improve that. Using Javascript library like JQuery and Dojo automates a
+ lot of things and simplify code writing, manage browser heterogeneity, but **DO NOT HELP ARCHITECTURING THE CODE**.
+
+Like in Java, having a framework enforcing design rules was definitely required. And so, we create H-ubu...

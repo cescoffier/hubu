@@ -1,0 +1,110 @@
+Contract and Conformity
+==================
+One of the key concept of H-UBU is the contract concept. A contract is a simple object generally containing methods only.
+
+    /**
+     * User Service Contract definition.
+     * The implementations are empty
+     * like a Java interface
+     */
+    var UserServiceContract = {
+        /**
+         * Checks if the user is logged in.
+         */
+        isLoggedIn : function() { },
+
+        /**
+         * Gets the logged-in user.
+         */
+        getUser : function() { },
+
+        /**
+         * Ask to log in.
+         * This method simulates an async call.
+         * And so returns immediately.
+         * @param {String} name
+         */
+        login: function(name) { },
+
+        /**
+         * Ask to log out.
+         * This method simulates an async call.
+         * And so returns immediately.
+         */
+        logout: function() { }
+    }
+
+
+A contract is a kind of interface. A component <tt>O conforms to a contract C if and only if:for all i in C where C[i] != null => O[i] != null && typeof(C[i]) = typeOf(O[i])</tt>
+
+**Note about system, model and metamodel**
+
+This conformity definition is an implementation of 'Chi' in Metamodel <- chi <- Model -> mu -> System where chi is : <tt>isObjectConformToContract</tt> and mu is <tt>representationOf</tt>.
+
+Components can implement contracts. When correctly implemented, the component conforms to the contract. Components can use other components through contracts. The component can access only methods and fields defined in the contract.
+
+**Note about Contract scoping**
+
+In order to ensure that a component has access only to the contract-part of the component, a proxy containing only the contract is injected by default. However, to avoid the performance cost, this can be disabled by setting proxy: false in the binding description. However, this is not recommended.
+To be a valid component, components must also conform to the AbstractComponent contract defining the lifecycle methods and getComponentName.
+
+Abstract Component Contract
+------------------------------------------
+
+    /**
+     * Creates an abstract component. This method is not intended to be used,
+     * and is just here for documentation purpose. Indeed, the returned object
+     * contains the four required methods that <bold>all</bold> component must
+     * have. Any Javascript object with those 4 methods can be cosidered as a
+     * valid component.
+     * The four required methods are:
+     *<ul>
+     * <li><code>getComponentName()<code> : return the default component name</li>
+     * <li><code>configurate(hub, [configuration])</code> : configures the component</li>
+     * <li><code>start()</code> / <code>stop()</code> : called when the component is started / stopped</li>
+     * </ul>
+     * Returned objects do not intend to be used, they are just mock / empty instances.
+     * @constructor
+     */
+    DE_AKQUINET.AbstractComponent = function() {
+
+        /**
+         * Gets the component name.
+         * If an 'id' is given in the hub configuration, this method is replaced.
+         * @return the component name
+         */
+        this.getComponentName = function() {        throw "AbstractComponent is an abstract class";    }
+
+        /**
+         * Configures the component.
+         * This method is called by the hub when the component starts or
+         * when the component is plugged when the hub is already started.
+         * @param hub the hub
+         * @param configuration optional parameter used to pass the compoment
+         * configuration. The configuration object is a simple map <code>
+         * key/value</code>.
+         */
+        this.configure = function(hub, configuration) {        throw "AbstractComponent is an abstract class";    }
+
+        /**
+         * Starts the component.
+         * This method is called by the hub when the hub starts or
+         * when the component is plugged when the hub is already started.
+         * This methods is always called after the configure method.
+         * Once called the component can send events and used bound
+         * components.
+         */
+        this.start = function() {        throw "AbstractComponent is an abstract class";    }
+
+        /**
+         * Stop the component.
+         * This method is called by the hub when the hub is stopped or
+         * when the component is unplugged.
+         * This methods is always called after the start method.
+         * Once called, the component must not send events or
+         * access bound components.
+         */
+        this.stop = function() {        throw "AbstractComponent is an abstract class";    }
+    };
+
+So, all components must contain those methods.

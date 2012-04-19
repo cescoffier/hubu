@@ -1,0 +1,139 @@
+H-Ubu user guide
+============
+
+Component Registration and Configuration
+-------------------------------------------------------------
+Components must be registered on the hub to be managed. This is done simply by calling <tt>hub.registerComponent(theComponent, theConfiguration)</tt>. This method takes the component as the first parameter (mandatory) and the configuration as the second parameter.
+
+The *conformity* of the component to the <tt>AbstractComponent</tt> contract is immediately checked. Invalid components will be rejected (exception).
+
+Components can be registered only once for a given name. By default, the name is the value returned by the <tt>getComponentName</tt> methods. However this is customizable by using the <tt>component_name</tt> property (in the instance configuration).
+
+The <tt>configuration</tt> parameter is optional. If specified, the configuration is injected as a parameter of the configure method. Configurations are just an object containing key/value pairs. As said previously, the <tt>component_name</tt> property is managed in a different way. When specified, the <tt>getComponentName</tt> method is replaced to return the given value.
+
+It is recommended to use the configuration to pass any external data to the component, like HTML element selectors (ids, classes ...).
+
+**Chaining**
+
+The <tt>registerComponent</tt> returns the hub object, allowing chaining.
+
+Bindings
+-------------
+Components can receive references to other components. All components must already be plugged into the hub. If not, the binding is rejected. Bindings are declared using the <tt>hub.bind(binding)</tt> method. The binding parameter is an object describing the binding. This object must contain:
+
+ * component : the name or the object reference of the component to be injected
+ * to : the name or the object reference of the component receiving the component
+ * into : the injection mechanism. it can be either a function pointer (called with the component as parameter),
+or a String. In this latter case, to.into is injected. If to.into is a function, this function is called; if it's an object, it is just injected (assigned).
+
+Moreover, it is strongly recommended to also set:
+
+* contract : the contract followed by the binding. The component must conform to this contract.
+
+If the contract is specified, H-Ubu injects a **proxy**. This ensures that it uses the contract only. This behavior can be disabled by adding : <tt>proxy:false</tt> to the binding parameter. Then all the public members of the component are accessible. This is also the case when the contract is not defined.
+
+Sending and receiving events without topics
+----------------------------------------------------------------
+Components can also interact asynchronously using events. Events are simple key/value objects. They can follow a contract but this is not enforced by H-Ubu. There are two ways to send / receive events in H-UBU:
+
+* the old / pure way using sendEvent and listeners
+* a MOM-like way based on topics
+
+To send an event, a component can just call:
+
+    hub.sendEvent(theComponent, theEvent);
+
+<tt>theComponent</tt> is a reference to the component sending the event. <tt>theEvent</tt> is a javascript object.
+
+Event reception is a multi-step process. First, the component must register a listener by using: <tt>hub.registerListener(theComponent, theMatchMethod, theCallbackMethod)</tt>. <tt>theComponent</tt> is a reference to the component willing to receive the event. <tt>theMatchMethod</tt> is a function (can be a pointer) defining the events to receive. <tt>theCallbackMethod</tt> is a function (can be a pointer) receiving the event.
+
+So, when an event is sent, the match methods from all listeners are called to check if the event needs to be delivered to the listener. The match method must return true or false:
+
+    function match1(event) {
+         return true; // Accept all events
+    }
+
+    function match2(event) {
+        // Accept only event matching the contract
+        return DE_AKQUINET_GOMOBILE.utils.isObjectConformToContract(contract);
+    }
+
+    function match3(event) {
+        // Accept events coming from aComponent
+        return event.source == aComponent;
+    }
+
+    function match4(event) {
+        // Accept events coming from a component named 'c'
+        return event.source.getComponentName() == 'c';
+    }
+
+    function match5(event) {
+        // Accept events containing 'logged = true'
+        return event.logged != null  && event.logged;
+    }
+
+
+When a match method returns <tt>true</tt>, H-Ubu calls the associated callback method. Notice that a component cannot receive its own sent events.
+
+**Event Source**
+
+H-Ubu adds to all events a property called source referencing the component sending the event.
+
+**Event Cloning**
+
+To prevent listeners from modifying events, the match and callback methods receive a clone of the event.
+
+To sum up about events
+
+ * components register a listener on the hub and pass the match and callback methods
+ * components send events to the hub
+ * H-Ubu calls the match methods
+ * For all match methods accepting the event, H-Ubu calls the associated callback method
+
+Sending events using topics
+-----------------------------------------
+
+H-Ubu supports topics too. Components can subscribe to topics and publish events in topics. The overall behavior is similar to the previous way.
+
+ * components subscribe on the hub and topic name (regexp) and callback method
+ * components publish events to a topic
+ * H-Ubu dispatches the event to matching subscribers, and calls the callback methods
+
+To publish an event, a component must use:
+
+    hub.publish(component, topic, event);
+
+where <tt>component</tt> is a reference to itself, <tt>topic</tt> is the topic name (String) and <tt>event</tt> is the event (Object).
+
+To subscribe to a topic, a component uses:
+
+    hub.subscribe(component, topic, callback);
+    hub.subscribe(component, topic, callback, filter);
+
+
+where <tt>component</tt> is a reference to itself, <tt>topic</tt> is a regular expression (String) on the topic name (obviously can just be the topic name), and <tt>callback</tt> is the method called on the component (with the event as a parameter).
+The second method adds a <tt>filter</tt> parameter. This parameter is a function to filter the event. Only events sent to the correct topic and passing the filter function will be sent to the callback. The filter function must return either true or false.
+
+
+    // Subscription to the /foo/bar topic
+    hub.subscribe(this, "/foo/bar", callback);
+
+    // Subscription to the /foo/* topic (all sub-topics)
+    hub.subscribe(this, "/foo/(.)*?", callback);
+
+    // Subscription with a filter
+    hub.subscribe(this, "/foo/bar", callback, function(event) {
+        return event.x == y;
+    });
+
+    // Publication
+    hub.publish(this, "/foo/bar", {x : y};
+
+
+This mechanism is based on the previous one, so has the same characteristics:
+
+* event cloning
+* event source
+
+Moreover, the <tt>event.topic</tt> property is added to the event.

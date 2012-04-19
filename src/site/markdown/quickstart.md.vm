@@ -1,0 +1,388 @@
+Quickstart
+==========
+**TODO: Change this**
+Let's imagine a simple [application](http://akquinet.github.com/hubu/demo/demo.html):
+
+![A simple demo](demo.png "A simple demo")
+
+**Note:** To see the demo, either use Chrome, Safari of Firefox with Firebug.
+
+So, nothing complex, two buttons, a message. The traditional Javascript way to do that would be to write all the javascript in the
+HTML file, which is exactly what H-Ubu will **NOT** do. Why ? Because, it would mean:
+
+ * dealing with HTML DOM modifications (and directly accessing the HTML DOM)
+ * dealing with Ajax call and server communication
+ * dealing with state control
+
+In one script ! This code is then untestable. It's the best *spaguetti* recipe.
+
+Let's see the H-UBU way to achieve the same thing
+--------------------------------------------------
+
+ * We define a backend component dealing with the server and publishing a public API
+ * We define a front end component using the backend component, changing the HTML page
+ * We define our application by registering those two components, configure them, and bind them
+
+The clear advantages are:
+
+ * the code is modular, and scoped
+ * the configuration allows us to pass Ids into components and avoid coupling javascript and HTML
+ * components are testable
+
+The Application Composition
+-----------------------------------------
+The first things to do, is to compose the application:
+
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>H-Ubu Demo</title>
+
+            <script src="http://code.jquery.com/jquery-latest.js"> </script>
+            <!-- (1) -->
+            <script type="text/javascript" src="hubu.js"></script>
+            <!-- (2) -->
+            <script type="text/javascript" src="backendComponent.js"></script>
+            <script type="text/javascript" src="frontendComponent.js"></script>
+
+            <!-- The contracts -->
+            <script type="text/javascript" src="UserServiceContract.js"></script>
+
+           <script type="text/javascript">
+            <!-- (3) -->
+            $(document).ready(function(){
+                // Component registrations
+                <!-- (4) -->
+                hub
+                    .registerComponent(backendComponent(), {
+                        component_name: 'user'
+                    })
+                    .registerComponent(frontendComponent(), {
+                        loginId : '#login',
+                        logoutId : '#logout',
+                        statusId : '#status',
+                        component_name: 'frontend'
+                    })
+                    <!-- (5) -->
+                    .bind({ // Declare a binding
+                        component: 'user',
+                        to:'frontend',
+                        into: 'bind', // method called on 'to'
+                        contract: UserServiceContract // The interface
+                    })
+                    <!-- (6) -->
+                    .start();
+            });
+            </script>
+    </head>
+
+First we import H-UBU (1), JQuery is also imported (component dependency) (because we can use any javascript library), and finally our components (2) and the contract. This contract is implemented by the backendComponent.
+
+When the page is loaded (3), we register our components (4) on a special H-UBU object : <tt>hub</tt>. This is the **nerve** of the application.
+As you can see, components receive configurations. The component_name is a specific property to name your component. The front end component also receives the HTML ids to manipulate the page indirectly.
+
+The bind method (5) allows injecting the backend component in the front end component. Notice that the binding specifies the contract to use for this interaction.
+
+Finally we start the hub (6), i.e. the application.
+
+Backend components
+-------------------------------
+The backend component simulates a user login.
+
+
+    /**
+     * H-Ubu demo.
+     * This is a simple backend component.
+     */
+
+    /**
+     * The component function creation.
+     * It's a function to use function var scoping.
+     * This component simulates a login mechanism.
+     * @return the component itself
+     */
+    var backendComponent = function() {
+
+       //*****************************//
+       // Private members and methods //
+       //*****************************//
+
+       /**
+        * The Hub.
+        */
+       var hub = null;
+
+       /**
+        * Is logged in ?
+        */
+       var isLoggedIn = false;
+
+       /**
+        * User name
+        */
+       var user = null;
+
+       /**
+        * My own component.
+        */
+       var component = null;
+
+       /**
+        * This method is called 2 seconds after the login request.
+        * It's using the hub to inform the frontend that the login was successful.
+        */
+       function loggedIn(name) {
+           isLoggedIn = true;
+           user = name;
+           // Publish an event on the /user/login topic to notify the frontend.
+           hub.publish(component, "/user/login", {loggedIn : true});
+       }
+
+       function loggedOut() {
+           console.log('LoggedOut called');
+           isLoggedIn = false;
+           user = null;
+           // Publish an event on the /user/login topic to notify the frontend.
+           hub.publish(component, "/user/login", {loggedIn : false});
+
+       }
+
+       return {
+
+           //*********************//
+           // Component Interface //
+           //*********************//
+
+           /**
+            * Method returning the component <b>unique</b>
+            * name. Using a fully qualified name is encouraged.
+            * @return the component unique name
+            */
+           getComponentName : function() {
+               return 'de_akquinet_demo_backend';
+           },
+
+           /**
+            * Configure method. This method is called when the
+            * component is registered on the hub.
+            * @param theHub the hub
+            */
+           configure : function(theHub) {
+               hub = theHub;
+               component = this;
+               console.log("Backend configured");
+           },
+
+           /**
+            * The Start function
+            * This method is called when the hub starts or just
+            * after configure if the hub is already started.
+            */
+           start: function() {
+               console.log("Backend started...");
+           },
+
+           /**
+            * The Stop method is called when the hub stops or
+            * just after the component removal if the hub is
+            * not stopped. No events can be sent in this method.
+            */
+           stop: function() {
+
+           },
+
+           //*******************//
+           // Public Interface //
+           //******************//
+
+           /**
+            * Checks if the user is logged in.
+            */
+           isLoggedIn : function() {
+               return isLoggedIn;
+           },
+
+           /**
+            * Get the logged-in user.
+            */
+           getUser : function() {
+               return user;
+           },
+
+           /**
+            * Ask to log in.
+            * This method simulates a async call.
+            * And so returns immediately.
+            * @param {String} name
+            */
+           login: function(name) {
+               setTimeout(loggedIn, 2000, name);
+               return;
+           },
+
+           /**
+            * Ask to log out.
+            * This method simulates a async call.
+            * And so returns immediately.
+            */
+           logout: function() {
+               setTimeout(loggedOut, 2000);
+               return;
+           },
+       }
+    }
+
+The important aspect is the distinction between the private part, the component interface implementation and the public API. Other components can interact with the component by using the public API.
+
+To simulate an ajax call, the application uses 'setTimeout'. When the function is really invoked, it sends an event (<tt>hub.sendEvent(component, {loggedIn : false});</tt>. Components registering a listener matching this event will automatically be called.
+
+Front end components
+--------------------------------
+The backend component simulates server calls. The front end component deals with the HTML page modification. To avoid being tied to one specific HTML page, the manipulated ids are passed inside the component configuration.
+
+
+    /**
+     * H-Ubu demo.
+     * This is a simple frontend component.
+     */
+
+    /**
+     * The component function creation.
+     * It's a function to use function var scoping.
+     * @return the component itself
+     */
+    var frontendComponent = function() {
+
+       //*****************************//
+       // Private members and methods //
+       //*****************************//
+
+       /**
+        * The Hub.
+        */
+       var hub = null;
+
+       /**
+        * The login button id
+        */
+       var loginId = null;
+
+       /**
+        * The logout button id
+        */
+       var logoutId = null;
+
+       /**
+        * The status message id
+        */
+       var statusId = null;
+
+       /**
+        * The backend component
+        */
+       var backend = null;
+
+       /**
+        * My own component object
+        */
+       var component = null;
+
+       function callback(event) {
+           console.log("Receive event : " + event.loggedIn)
+           updateStatus(event.loggedIn);
+       }
+
+       function updateStatus(logged) {
+           console.log("update status " + statusId + " : " + logged);
+           if (logged) {
+                   $(statusId).html('We are logged in').css('color', 'green');
+           } else {
+                   $(statusId).html('We are not logged in').css('color', 'red');
+           }
+       }
+
+       return {
+
+           //*********************//
+           // Component Interface //
+           //*********************//
+
+           /**
+            * Method returning the component's <b>unique</b>
+            * name. Using a fully qualified name is encouraged.
+            * @return the component unique name
+            */
+           getComponentName : function() {
+               return 'de_akquinet_demo_frontend';
+           },
+
+           /**
+            * Configure method. This method is called when the
+            * component is registered on the hub.
+            * @param theHub the hub
+            * @param configuration the configuration
+            */
+           configure : function(theHub, configuration) {
+               hub = theHub;
+               loginId = configuration.loginId;
+               logoutId = configuration.logoutId;
+               statusId = configuration.statusId;
+               console.log("Frontend configured : " + loginId + ' ' + logoutId + ' ' + statusId);
+           },
+
+           /**
+            * The Start function
+            * This method is called when the hub starts or just
+            * after configure if the hub is already started.
+            */
+           start: function() {
+               console.log("Frontend starting...");
+               component = this;
+               // The first thing to do is to get the backend component and ask if we're
+               // logged in
+
+               // Invoke a public method on backend. Backend was already injected
+               console.log("Backend : " + backend);
+               var state = backend.isLoggedIn();
+
+               updateStatus(state);
+
+               // Then, we subscribe to the /user/login topic
+               hub.subscribe(this, "/user/login", callback);
+
+               // Finally we register click event
+               $(loginId).click(function() {
+                   backend.login('bla');
+               });
+
+               $(logoutId).click(function() {
+                   backend.logout();
+               });
+
+               console.log("Frontend started...");
+           },
+
+           /**
+            * The Stop method is called when the hub stops or
+            * just after the component removal if the hub is
+            * not stopped. No events can be sent in this method.
+            */
+           stop: function() {
+
+           },
+
+           /**
+            * This method is used to inject the backend component.
+            * @param {Object} cmp the component to inject
+            */
+           bind: function(cmp) {
+               backend = cmp;
+           }
+       }
+    }
+
+The component code is structured as the backend component. However, the configure method receives the configuration and the HTML ids are retrieved from the configuration object. Moreover, the 'bind' method receive the backend component. This method is automatically called by H-UBU (bind in the HTML page) and injects the correct component.
+
+In the start function, the component registers a listener by giving a 'match' method and a 'callback' method. The match method is called to check if the component is interested in the event. If this method returns true, the 'callback' method is invoked. It also directly uses the backend (injected component) to initiate the state. The method also uses JQuery to set a handler on the button. To register the handler, it uses the ids given in the configuration.
+
+When the login is completed, the 'callback' method is called (thanks to the listener), and the status message is updated.

@@ -1,0 +1,35 @@
+H-Ubu is a component model for Javascript. Javascript componentization aims to modularize Javascript code in order to
+improve the testability, the maintainability and the scalability of Javascript applications. Indeed, Javascript is the
+poor-child of web app technologies. The toolset for Javascript is seriously lacking in comparison to the Java toolset.
+Unit testing, static analysis and managed execution are totally new for Javascript. However, the flexibility and the
+design of the language makes these tools a stringent requirement for code scalability: especially in recent years,
+since Javascript has become mainstream and is used by almost all web app stacks. H-Ubu is a component framework for
+Javascript, created to address the above issues.
+
+H-UBU's main features
+=====================
+H-Ubu is a really simple component framework for Javascript. It supports:
+
+* component definition : the code is organized into components
+* component injections : components can be injected into other components
+* contract-based interactions : components implement and use contracts (i.e. interface)
+* synchronous and asynchronous component communication : components can interact using method calls and events
+* architecture description : the application is composed by registering components and binding them
+* component configuration : components can be configured
+* test : components are testable !
+* component separation: components are developed in separate files; the application code is then scalable
+
+License
+=======
+H-Ubu is licensed under the Apache License 2.0. The project is founded by [akquinet A.G.](http://www.akquinet.de/en)
+
+Documentation
+=============
+
+ * [Motivations](motivations.html)
+ * [H-Ubu's concepts](concepts.html)
+ * [Quickstart and Demo](quickstart.html)
+ * [User's guide](userguide.html)
+ * [H-Ubu JS-Doc](jsdoc/index.html)
+ * [Testing components](testing.html)
+ * [Contract and Conformity](contractAndConformity.html)
