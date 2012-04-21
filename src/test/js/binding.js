@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-describe("Direct binding Test Suite", function () {
+describe("Direct Binding Test Suite", function () {
 
     afterEach(function () {
         hub.reset();

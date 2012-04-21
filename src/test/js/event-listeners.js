@@ -99,7 +99,7 @@ describe("Event Mechanism Test Suite", function () {
             expect(listeners[0].component).toBe(cmp);
         } catch (e) {
             jasmine.log(e);
-            this.("Unexpected component reject");
+            this.fail("Unexpected component reject");
         }
     })
 
