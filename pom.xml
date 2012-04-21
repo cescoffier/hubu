@@ -17,8 +17,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.akquinet.hubu</groupId>
     <artifactId>hubu</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>H-Ubu</name>
+    <packaging>pom</packaging>
     <description>H-Ubu is a simple component model for Javascript</description>
 
     <parent>
@@ -35,6 +36,11 @@
         <url>http://www.akquinet.de/en</url>
     </organization>
 
+    <properties>
+        <site.path>snapshot</site.path>
+        <js.target>${basedir}/target/js</js.target>
+    </properties>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -44,21 +50,30 @@
     </licenses>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/javascript</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>.</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>LICENSE*</include>
-                    <include>NOTICE*</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${js.target}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/js</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>com.github.searls</groupId>
@@ -72,94 +87,140 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jsSrcDir>src/main/javascript</jsSrcDir>
-                    <jsTestSrcDir>src/test/javascript</jsTestSrcDir>
+                    <!-- use the filtered version -->
+                    <jsSrcDir>${js.target}</jsSrcDir>
+                    <jsTestSrcDir>src/test/js</jsTestSrcDir>
                     <preloadSources>
-                        <preloadSource>${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js</preloadSource>
+                        <preloadSource>
+                            ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
+                        </preloadSource>
                     </preloadSources>
                 </configuration>
             </plugin>
 
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- This will be probably empty -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.0-beta-9</version>
                 <configuration>
                     <useReleaseProfile>true</useReleaseProfile>
-                    <goals>deploy</goals>
+                    <goals>deploy deploy-site</goals>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skipDeploy>true</skipDeploy>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.4</version>
+                            <configuration>
+                                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>gr.abiss.mvn.plugins</groupId>
+                            <artifactId>maven-jstools-plugin</artifactId>
+                            <version>0.7</version>
+                            <configuration>
+                                <jsDir>${js.target}</jsDir>
+                                <includePrivate>true</includePrivate>
+                                <includeUndocumented>true</includeUndocumented>
+                                <reportJslintErrorsOnly>false</reportJslintErrorsOnly>
+                            </configuration>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>jslint</report>
+                                        <report>jsdoc</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kohsuke</groupId>
+                        <artifactId>doxia-module-markdown</artifactId>
+                        <version>1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Do not fail on errors -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jslint-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jslint</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceJsFolder>${js.target}</sourceJsFolder>
+                    <failOnIssues>false</failOnIssues>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${js.target}/hubu.js</file>
+                                    <type>js</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.5</version>
+                <configuration>
+                    <message>Building site for ${project.version}</message>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site-deploy</phase>
+                        <configuration>
+                            <path>${site.path}</path>
+                            <merge>true</merge>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>gr.abiss.mvn.plugins</groupId>
-                <artifactId>maven-jstools-plugin</artifactId>
-                <version>0.7</version>
-                <configuration>
-                    <jsDir>src/main/javascript</jsDir>
-                    <includePrivate>true</includePrivate>
-                    <includeUndocumented>true</includeUndocumented>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>jslint</report>
-                            <report>jsdoc</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.6</version>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <scm>
         <connection>scm:git:git@github.com:akquinet/hubu.git</connection>
         <url>git@github.com:akquinet/hubu.git</url>
         <developerConnection>scm:git:git@github.com:akquinet/hubu.git</developerConnection>
     </scm>
-
-    <distributionManagement>
-        <site>
-            <!-- This makes the assumption that the gh-pages branch is tracked into ../hubu-pages -->
-            <id>github-pages</id>
-            <url>file:../hubu-pages/site</url>
-        </site>
-    </distributionManagement>
 
     <profiles>
         <profile>
@@ -184,6 +245,9 @@
 
         <profile>
             <id>release</id>
+            <properties>
+                <site.path>release</site.path>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
