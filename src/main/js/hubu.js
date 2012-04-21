@@ -47,19 +47,19 @@ DE_AKQUINET.hubu = function() {
      * The component plugged to the hub.
      * @private
      */
-    var components = [];
+    var components = [],
 
     /**
      * The registered listeners
      * @private
      */
-    var listeners = [];
+    listeners = [],
 
     /**
      * Is the hub started.
      * @private
      */
-    var started = false;
+    started = false;
 
     /**
      * Checks if the given component implements the
@@ -99,23 +99,24 @@ DE_AKQUINET.hubu = function() {
             return false;
         }
 
-        var sent = false;
+        var sent = false,
+            i = 0,
+            listener = null,
+            ev = null;
 
-        for (var i = 0; i <listeners.length; i++) {
-            var listener = listeners[i];
-            // Skip the sender
-            if (listener.component == component) {
-                continue;
-            }
+        for (i = 0; i <listeners.length; i++) {
+            listener = listeners[i];
+            // Skip the sender if we're the sender
+            if (listener.component !== component) {
+                // Check match method
+                // We clone the event to avoid modification impact
+                ev = DE_AKQUINET.utils.clone(event);
+                ev.source = component;
 
-            // Check match method
-			// We clone the event to avoid modification impact
-            var ev = DE_AKQUINET.utils.clone(event);
-            ev.source = component;
-
-            if (listener.match.apply(listener.component, [ev])) {
-                listener.callback.apply(listener.component, [ev]);
-                sent = true;
+                if (listener.match.apply(listener.component, [ev])) {
+                    listener.callback.apply(listener.component, [ev]);
+                    sent = true;
+                }
             }
         }
 
@@ -151,13 +152,18 @@ DE_AKQUINET.hubu = function() {
                 return null;
             }
 
-            for (var i = 0; i < components.length; i++) {
-                var cmp = components[i];
+            var i = 0,
+                cmp = null,
+                fc = null,
+                n = null;
+
+            for (i = 0; i < components.length; i++) {
+                cmp = components[i];
                 // Check that we have the getComponentName function
-                var fc = cmp.getComponentName;
+                fc = cmp.getComponentName;
                 if (DE_AKQUINET.utils.isFunction(fc)) {
-                    var n = fc.apply(cmp, []); // Invoke the method.
-                    if (name == n) {
+                    n = fc.apply(cmp, []); // Invoke the method.
+                    if (name === n) {
                         // Only on match, just return.
                         return cmp;
                     }
@@ -199,7 +205,7 @@ DE_AKQUINET.hubu = function() {
             // We can call getComponentName as we have check the component
             if (this.getComponent(component.getComponentName())) {
                 // If the component is already plugged, we return immediately
-                return hub;
+                return this;
             }
 
             // Add the component at the end of the list.
@@ -238,7 +244,7 @@ DE_AKQUINET.hubu = function() {
          */
         unregisterComponent : function(component) {
             // Check parameter
-            var cmp;
+            var cmp, idx;
 
             // If component is null, return immediately
             if (! component) {
@@ -263,8 +269,11 @@ DE_AKQUINET.hubu = function() {
 
             // Iterate on the components array to find the component to
             // unregister.
-            var idx = DE_AKQUINET.utils.indexOf(components, cmp); // Find the index
-            if (idx != -1) { // Remove it if really found
+            idx = DE_AKQUINET.utils.indexOf(components, cmp); // Find the index
+            if (idx !== -1) { // Remove it if really found
+                // Unregister all services.
+                DE_AKQUINET.hubu.registry.unregisterAllServicesFromComponent(cmp);
+
                 // Call stop on the component
                 cmp.stop();
                 this.unregisterListener(cmp);
@@ -281,11 +290,13 @@ DE_AKQUINET.hubu = function() {
          * @return the hub
          */
         start : function() {
+            var i = 0;
+
             if (started) {
                 return this;
             }
             started = true;
-            for (var i = 0; i < components.length; i++) {
+            for (i = 0; i < components.length; i++) {
                 // Only valid component can be plugged
                 // So we can call start directly.
                 components[i].start();
@@ -300,11 +311,12 @@ DE_AKQUINET.hubu = function() {
          * @return the hub
          */
         stop : function() {
+            var i;
             if (! started ) {
                 return this;
             }
             started = false;
-            for (var i = 0; i < components.length; i++) {
+            for (i = 0; i < components.length; i++) {
                 // Only valid component can be plugged
                 // So we can call stop directly.
                 components[i].stop();
@@ -336,8 +348,12 @@ DE_AKQUINET.hubu = function() {
                 throw "Cannot bind components - component, to and into must be defined";
             }
 
+
+            var component,  // the first component
+                to, // the computed destination
+                injector; // the injection placeholder
+
             // Get the first component object
-            var component;
             // Two cases, either component is a String, or an Object
             if (typeof binding.component === "string") {
                component = this.getComponent(binding.component);
@@ -363,15 +379,14 @@ DE_AKQUINET.hubu = function() {
                   if (binding.proxy === undefined  || binding.proxy) {
                     // Create the proxy
                     component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
-                  } else {
-                    // Direct injection
-                    // component = component so nothing to do.
-                  }
+                  } // else {
+                        // Direct injection
+                        // component = component so nothing to do.
+                    // }
                 }
             }
 
             // Get the second component (to)
-            var to; // The computed component
             // Two cases, either component is a String, or an Object
             if (typeof binding.to === "string") {
                to = this.getComponent(binding.to);
@@ -395,7 +410,7 @@ DE_AKQUINET.hubu = function() {
                 binding.into.apply(to, [component]);
             } else if (typeof binding.into === "string") {
                 // Lookup the member
-                var injector = to[binding.into];
+                injector = to[binding.into];
                 if (! injector) {
                     // Just create the member and inject it
                     to[binding.into] = component;
@@ -658,7 +673,54 @@ DE_AKQUINET.hubu = function() {
             this.stop();
             components = [];
             listeners = [];
+            DE_AKQUINET.hubu.registry.services = [];
+            DE_AKQUINET.hubu.registry.nextid = -1;
             return this;
+        },
+
+        registerService : function(contract, component, properties) {
+            return DE_AKQUINET.hubu.registry.registerService(contract, component, properties);
+        },
+
+        getServiceReference : function(contract) {
+            var services = DE_AKQUINET.hubu.registry.getServiceReferencesByContract(contract);
+            if (services != null  && services.length > 0) {
+                return services[0];
+            }
+            return null;
+        },
+
+        getServiceReferences : function(contract) {
+            return DE_AKQUINET.hubu.registry.getServiceReferencesByContract(contract);
+        },
+
+        getService: function(contract) {
+            var refs = this.getServiceReference(contract);
+            if (refs !== null) {
+                return this.getServiceForReference(refs);
+            }
+            return null;
+        },
+
+        getServices: function(contract) {
+            var objects = [],
+                refs = this.getServiceReferences(contract),
+                i = 0;
+
+            if (refs !== null) {
+                for (; i < refs.length; i++) {
+                    objects.push(this.getServiceForReference(refs[0]));
+                }
+            }
+            return objects;
+        },
+
+        getServiceForReference : function(reference) {
+            return reference.component;
+        },
+
+        unregisterService : function(reg) {
+            DE_AKQUINET.hubu.registry.unregisterService(reg);
         }
     };
 } ();
@@ -765,7 +827,8 @@ DE_AKQUINET.utils =  DE_AKQUINET.utils || { };
 DE_AKQUINET.utils.isObjectConformToContract = function(object, contract) {
     // For all 'properties' from contract, check that the object
     // has an equivalent property
-    for (var i in contract) {
+    var i;
+    for (i in contract) {
         // We need to check that the property is defined.
         if (object[i] === undefined) {
             DE_AKQUINET.utils.warn("Object not conform to contract - property " + i + " missing");
@@ -861,11 +924,13 @@ DE_AKQUINET.utils.clone = function(object) {
  * @return the proxy
  */
 DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
-  var proxy = {};
+  var proxy = {},
+      i;
+
   // We inject the proxied objects
   proxy.__proxy__ = object;
 
-  for (var i in contract) {
+  for (i in contract) {
     if (this.isFunction(contract[i])) {
       // To call the correct method, we create a new anonymous function
       // applying the arguments on the function itself
@@ -906,12 +971,13 @@ DE_AKQUINET.utils.bind = function(o, m) {
  * -1 if not found.
  */
 DE_AKQUINET.utils.indexOf = function(array, obj) {
+  var i;
   if (Array.indexOf) {
     // We just delegate hoping some native code (optimization)
       return array.indexOf(obj);
   } else {
     // Simple lookup
-      for(var i = 0; i < array.length; i++){
+      for(i = 0; i < array.length; i++){
             if(array[i] == obj){
                 return i;
             }
@@ -941,3 +1007,100 @@ DE_AKQUINET.utils.loadScript = function(url) {
 		.appendChild(fileref);
 	return true;
 };
+
+DE_AKQUINET.hubu.registry = {
+
+    services: [],
+    nextid: 0,
+
+
+    registerService: function(service, component, properties) {
+        // Increment the service.id
+        var id = this.currentid,
+            props = null,
+            reg = null;
+
+        this.nextid = this.nextid + 1;
+
+        if (properties === undefined  || properties === null) {
+            props = {}
+        } else {
+            props = properties;
+        }
+
+        props.id = id;
+        props.service = service;
+
+        reg = {
+            'contract': service,
+            'component': component,
+            'id': id,
+            'properties' : props
+        };
+
+        this.services.push(reg);
+
+        return reg;
+    },
+
+    unregisterService: function(reg) {
+        var index = this.findServiceIndexById(reg.id),
+            removedService = null;
+
+        if (index !== -1) {
+            removedService = this.services.splice(index, 1);
+        }
+
+        return removedService;
+    },
+
+    unregisterAllServicesFromComponent: function(component) {
+        var removedService = null,
+            i = 0,
+            indexes = [];
+
+        for (; i < this.services.length; i++) {
+            if (this.services[i].component === component) {
+                indexes.push(i);
+            }
+        }
+
+        for (i = indexes.length; i > 0; i--) {
+            this.services.splice(indexes[i], 1);
+        }
+
+        return removedService;
+    },
+
+    getServiceReferencesByContract: function(service) {
+        var svc = [];
+        var i = 0;
+        for (; i < this.services.length; i++) {
+            if (this.services[i].contract === service) {
+                svc.push(this.services[i]);
+            }
+        }
+        return svc;
+    },
+
+    findServiceById: function(id) {
+        var i = 0;
+        for (; i < this.services.length; i++) {
+            if (this.services[i].id === id) {
+                return this.service[i];
+            }
+        }
+        return null;
+    },
+
+    findServiceIndexById: function(id) {
+        var i = 0;
+        for (; i < this.services.length; i++) {
+            if (this.services[i].id === id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+}
