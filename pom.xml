@@ -89,16 +89,8 @@
                         <configuration>
                             <!-- use the filtered version -->
                             <jsSrcDir>${js.target}</jsSrcDir>
-                            <sourceIncludes>
-                                <include>**/hubu.js</include>
-                                <include>**/hubu-service.js</include>
-                            </sourceIncludes>
-                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
-                            <preloadSources>
-                                <preloadSource>
-                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
-                                </preloadSource>
-                            </preloadSources>
+                            <!-- Other parameters are taken from the default configuration -->
+
                             <junitXmlReportFileName>TEST-jasmine-regular.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
@@ -114,12 +106,7 @@
                             <sourceIncludes>
                                 <include>**/hubu-all.js</include>
                             </sourceIncludes>
-                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
-                            <preloadSources>
-                                <preloadSource>
-                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
-                                </preloadSource>
-                            </preloadSources>
+
                             <junitXmlReportFileName>TEST-jasmine-aggregated.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
@@ -135,16 +122,30 @@
                             <sourceIncludes>
                                 <include>**/hubu-all-min.js</include>
                             </sourceIncludes>
-                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
-                            <preloadSources>
-                                <preloadSource>
-                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
-                                </preloadSource>
-                            </preloadSources>
+
                             <junitXmlReportFileName>TEST-jasmine-minified.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <!-- Default configuration used by jasmine:bdd  -->
+                    <jsSrcDir>src/main/js</jsSrcDir>
+
+                    <sourceIncludes>
+                        <include>**/hubu.js</include>
+                        <include>**/hubu-abstract-component.js</include>
+                        <include>**/hubu-utils.js</include>
+                        <include>**/hubu-service.js</include>
+                    </sourceIncludes>
+
+                    <!-- Common test configuration, shared by all executions -->
+                    <jsTestSrcDir>src/test/js</jsTestSrcDir>
+                    <preloadSources>
+                        <preloadSource>
+                            ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
+                        </preloadSource>
+                    </preloadSources>
+                </configuration>
 
             </plugin>
 
@@ -177,6 +178,8 @@
 
                                     <includes>
                                         <include>${js.target}/hubu.js</include>
+                                        <include>${js.target}/hubu-abstract-component.js</include>
+                                        <include>${js.target}/hubu-utils.js</include>
                                         <include>${js.target}/hubu-service.js</include>
                                     </includes>
                                 </aggregation>

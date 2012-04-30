@@ -1,3 +1,14 @@
+/**
+ * DE_AKQUINET package declaration.
+ * This declaration makes sure to not erase the
+ * current declaration. If the package does not
+ * exist an empty object is created.
+ * @default {}
+ */
+var DE_AKQUINET = DE_AKQUINET || {};
+
+DE_AKQUINET.hubu = DE_AKQUINET.hubu  || {};
+
 DE_AKQUINET.hubu.registry = {
 
     services: [],
