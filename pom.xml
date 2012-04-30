@@ -50,6 +50,7 @@
     </licenses>
 
     <build>
+
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -57,8 +58,7 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <!-- here the phase you need -->
-                        <phase>validate</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -81,21 +81,71 @@
                 <version>1.1.0</version>
                 <executions>
                     <execution>
+                        <phase>test</phase>
+                        <id>test regular version</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <configuration>
+                            <!-- use the filtered version -->
+                            <jsSrcDir>${js.target}</jsSrcDir>
+                            <sourceIncludes>
+                                <include>**/hubu.js</include>
+                                <include>**/hubu-service.js</include>
+                            </sourceIncludes>
+                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
+                            <preloadSources>
+                                <preloadSource>
+                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
+                                </preloadSource>
+                            </preloadSources>
+                            <junitXmlReportFileName>TEST-jasmine-regular.xml</junitXmlReportFileName>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <id>test aggregated version</id>
+                        <configuration>
+                            <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <sourceIncludes>
+                                <include>**/hubu-all.js</include>
+                            </sourceIncludes>
+                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
+                            <preloadSources>
+                                <preloadSource>
+                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
+                                </preloadSource>
+                            </preloadSources>
+                            <junitXmlReportFileName>TEST-jasmine-aggregated.xml</junitXmlReportFileName>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <id>test minified version</id>
+                        <configuration>
+                            <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <sourceIncludes>
+                                <include>**/hubu-all-min.js</include>
+                            </sourceIncludes>
+                            <jsTestSrcDir>src/test/js</jsTestSrcDir>
+                            <preloadSources>
+                                <preloadSource>
+                                    ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
+                                </preloadSource>
+                            </preloadSources>
+                            <junitXmlReportFileName>TEST-jasmine-minified.xml</junitXmlReportFileName>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- use the filtered version -->
-                    <jsSrcDir>${js.target}</jsSrcDir>
-                    <jsTestSrcDir>src/test/js</jsTestSrcDir>
-                    <preloadSources>
-                        <preloadSource>
-                            ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
-                        </preloadSource>
-                    </preloadSources>
-                </configuration>
+
             </plugin>
 
 
@@ -106,6 +156,49 @@
                     <useReleaseProfile>true</useReleaseProfile>
                     <goals>deploy deploy-site</goals>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>yuicompressor-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>compress</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <aggregations>
+                                <aggregation>
+                                    <insertNewLine>true</insertNewLine>
+                                    <output>${project.build.directory}/hubu-all.js</output>
+
+                                    <includes>
+                                        <include>${js.target}/hubu.js</include>
+                                        <include>${js.target}/hubu-service.js</include>
+                                    </includes>
+                                </aggregation>
+                            </aggregations>
+                            <nocompress>true</nocompress>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>compress</id>
+                        <goals>
+                            <goal>compress</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <sourceDirectory>${project.build.directory}</sourceDirectory>
+                            <includes>
+                                <include>hubu-all.js</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -152,24 +245,6 @@
                 </dependencies>
             </plugin>
 
-            <!-- Do not fail on errors -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jslint-maven-plugin</artifactId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>jslint</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sourceJsFolder>${js.target}</sourceJsFolder>
-                    <failOnIssues>false</failOnIssues>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -184,8 +259,13 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${js.target}/hubu.js</file>
+                                    <file>${project.build.directory}/hubu-all.js</file>
                                     <type>js</type>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/classes/hubu-all-min.js</file>
+                                    <type>js</type>
+                                    <classifier>min</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
@@ -197,9 +277,6 @@
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
                 <version>0.5</version>
-                <configuration>
-                    <message>Building site for ${project.version}</message>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -207,6 +284,7 @@
                         </goals>
                         <phase>site-deploy</phase>
                         <configuration>
+                            <message>Building site for ${project.version}</message>
                             <path>${site.path}</path>
                             <merge>true</merge>
                         </configuration>
