@@ -2,30 +2,26 @@
  * Hubu Eventing extension.
  * This extension manages the event communications between components.
  * It is recommended to use <tt>topics</tt>.
+ * @constructor
  * @class
- * @name HubuEventingExtension
  */
-(function (hub) {
-    /**
+DE_AKQUINET.eventing = function (hub) {
+
+    // Private section
+
+   /**
     * The given hub.
     * @private
     * @memberOf HubuEventingExtension
     */
-    this.hub = hub;
+    var hub = hub;
 
     /**
      * The registered listeners
      * @private
      * @memberOf HubuEventingExtension
      */
-    this.listeners = [];
-
-    // Registration.
-    this.hub.registerExtension(this);
-
-    this.reset = function() {
-        this.listeners = [];
-    }
+    var listeners = [];
 
     /**
      * Processes the given event sent by the given component.
@@ -41,7 +37,7 @@
      * @private
      * @methodOf HubuEventingExtension
      */
-    this.processEvent = function (component, event) {
+    var processEvent = function (component, event) {
         if (!event || !component) {
             return false;
         }
@@ -70,13 +66,15 @@
         return sent;
     };
 
+    // Populate the hub section
+
     /**
      * Gets listeners.
      * Do not modified the result !
      * @return the list of registered listeners.
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.getListeners = function () {
+    hub.getListeners = function () {
         return listeners;
     };
 
@@ -90,7 +88,7 @@
      * a matching event is sent
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.registerListener = function (component, match, callback) {
+    hub.registerListener = function (component, match, callback) {
         // Nothing can be null
         if (!component || !callback || !match) {
             throw "Cannot register the listener - all parameters must be defined";
@@ -124,7 +122,7 @@
      * at least contain 'match' (match function) and 'callback' (the callback)
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.registerConfigurableListener = function (component, conf) {
+    hub.registerConfigurableListener = function (component, conf) {
         // Nothing can be null
         if (!component || !conf || !conf.match || !conf.callback) {
             throw "Cannot register the listener - all parameters must be defined";
@@ -167,7 +165,7 @@
      * @return the current hub
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.unregisterListener = function (component, callback) {
+    hub.unregisterListener = function (component, callback) {
         // Check that we have at least a correct component
         if (!component) {
             return this;
@@ -234,7 +232,7 @@
      * one component, false otherwise
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.sendEvent = function (component, event) {
+    hub.sendEvent = function (component, event) {
         if (!component || !event) {
             return false;
         }
@@ -252,7 +250,7 @@
      * @param {Function} filter : optional method to filter received events.
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.subscribe = function (component, topic, callback, filter) {
+    hub.subscribe = function (component, topic, callback, filter) {
         if (!component || !topic || !callback) {
             return this;
         }
@@ -302,7 +300,7 @@
      * one component, false otherwise
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.publish = function (component, topic, event) {
+    hub.publish = function (component, topic, event) {
         if (!component || !topic || !event) {
             return false;
         }
@@ -310,4 +308,18 @@
         return hub.sendEvent(component, event);
     };
 
-})(DE_AKQUINET.hubu);
+
+    // Public section, implementation of the extension.
+    return {
+        reset : function() {
+            listeners = [];
+        },
+
+        unregisterComponent : function(cmp) {
+            hub.unregisterListener(cmp);
+        }
+    }
+
+}
+
+DE_AKQUINET.extensions.eventing =  new DE_AKQUINET.eventing(DE_AKQUINET.hubu);

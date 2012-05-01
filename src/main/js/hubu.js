@@ -34,6 +34,12 @@
  */
 var DE_AKQUINET = DE_AKQUINET || {};
 
+/**
+ * Extensions objects storing the h-ubu extensions.
+ * @default {}
+ */
+DE_AKQUINET.extensions = DE_AKQUINET.extensions || {};
+
 
 /**
  * H-Ubu module.
@@ -49,13 +55,6 @@ DE_AKQUINET.hubu = function() {
      * @private
      */
     var components = [],
-
-    /**
-     * Registered extensions
-     * @type {Array}
-     * @private
-     */
-    extensions = [],
 
     /**
      * Is the hub started.
@@ -98,7 +97,7 @@ DE_AKQUINET.hubu = function() {
                 fc = null,
                 n = null;
 
-            for (i = 0; i < components.length; i++) {
+            for (; i < components.length; i++) {
                 cmp = components[i];
                 // Check that we have the getComponentName function
                 fc = cmp.getComponentName;
@@ -112,17 +111,6 @@ DE_AKQUINET.hubu = function() {
             }
             // Not found
             return null;
-        },
-
-        /**
-         * Registers an extension to the hub.
-         * Only extension should call this method.
-         * @param extension the extension to register.
-         */
-        registerExtension : function(extension) {
-            if (DE_AKQUINET.utils.indexOf(extensions, extension) === -1) {
-                extensions.push(extension);
-            }
         },
 
         /**
@@ -204,7 +192,7 @@ DE_AKQUINET.hubu = function() {
          */
         unregisterComponent : function(component) {
             // Check parameter
-            var cmp, idx;
+            var cmp, idx, ext;
 
             // If component is null, return immediately
             if (! component) {
@@ -231,12 +219,13 @@ DE_AKQUINET.hubu = function() {
             // unregister.
             idx = DE_AKQUINET.utils.indexOf(components, cmp); // Find the index
             if (idx !== -1) { // Remove it if really found
-                // Unregister all services.
-                DE_AKQUINET.hubu.registry.unregisterAllServicesFromComponent(cmp);
 
+                // Notify all extensions
+                for (ext in DE_AKQUINET.extensions) {
+                    DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "unregisterComponent", [cmp]);
+                }
                 // Call stop on the component
                 cmp.stop();
-                this.unregisterListener(cmp);
                 components.splice(idx, 1);
             }
 
@@ -294,63 +283,13 @@ DE_AKQUINET.hubu = function() {
 
             this.stop();
 
-            for (; i < extensions.length; i++) {
-                ext = extensions[i];
-                DE_AKQUINET.utils.invoke(ext, "reset", []);
+            for (ext in DE_AKQUINET.extensions) {
+                DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "reset", []);
             }
 
             components = [];
 
-            if (DE_AKQUINET.hubu.registry != undefined) {
-                DE_AKQUINET.hubu.registry.services = [];
-                DE_AKQUINET.hubu.registry.nextid = -1;
-            }
             return this;
-        },
-
-        registerService : function(contract, component, properties) {
-            return DE_AKQUINET.hubu.registry.registerService(contract, component, properties);
-        },
-
-        getServiceReference : function(contract) {
-            var services = DE_AKQUINET.hubu.registry.getServiceReferencesByContract(contract);
-            if (services != null  && services.length > 0) {
-                return services[0];
-            }
-            return null;
-        },
-
-        getServiceReferences : function(contract) {
-            return DE_AKQUINET.hubu.registry.getServiceReferencesByContract(contract);
-        },
-
-        getService: function(contract) {
-            var refs = this.getServiceReference(contract);
-            if (refs !== null) {
-                return this.getServiceForReference(refs);
-            }
-            return null;
-        },
-
-        getServices: function(contract) {
-            var objects = [],
-                refs = this.getServiceReferences(contract),
-                i = 0;
-
-            if (refs !== null) {
-                for (; i < refs.length; i++) {
-                    objects.push(this.getServiceForReference(refs[0]));
-                }
-            }
-            return objects;
-        },
-
-        getServiceForReference : function(reference) {
-            return reference.component;
-        },
-
-        unregisterService : function(reg) {
-            DE_AKQUINET.hubu.registry.unregisterService(reg);
         }
     };
 } ();

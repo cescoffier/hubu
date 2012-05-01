@@ -1,19 +1,17 @@
 /**
  * Hubu Binding extension
  * This extension allows to bind components together.
+ * It is recommended to use <tt>topics</tt>.
+ * @constructor
  * @class
- * @name HubuBindingExtension
  */
-(function (hub) {
+DE_AKQUINET.binding = function (hubu) {
     /**
     * The given hub.
     * @private
     * @memberOf HubuBindingExtension
     */
-    this.hub = hub;
-
-    // Registration.
-    this.hub.registerExtension(this);
+    var hub = hubu;
 
     /**
      * Binds a component to another component.
@@ -34,7 +32,7 @@
      * @return the current hub
      * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.bind = function(binding) {
+    hub.bind = function(binding) {
         // First check that all parameters are here
         if (! binding.component  || ! binding.to || ! binding.into) {
             throw "Cannot bind components - component, to and into must be defined";
@@ -124,5 +122,11 @@
         return this;
     }
 
+    return {
+        // Nothing to implement here.
+    }
 
-})(DE_AKQUINET.hubu);
+
+};
+
+DE_AKQUINET.extensions.binding =  new DE_AKQUINET.binding(DE_AKQUINET.hubu);

@@ -1,9 +1,27 @@
-DE_AKQUINET.hubu.registry = {
+/**
+ * Hubu Service extension.
+ * This extension manages the service bindings between components.
+ * @class
+ * @constructor
+ */
+DE_AKQUINET.service = function (hub) {
+    /**
+     * The list of services (service registration).
+     */
+    var services = [];
+    /**
+     * The id counter.
+     */
+    var nextid = 0;
 
-    services: [],
-    nextid: 0,
-
-    ServiceRegistration: function(details) {
+    /**
+     * Creates a service registration
+     * @param details the details of the registration. It must contains <tt>id</tt>, <tt>contract</tt>, <tt>component</tt>,
+     * <tt>hub</tt>, <tt>properties</tt>.
+     * @constructor
+     * @private
+     */
+    var ServiceRegistration = function (details) {
         this.id = details.id;
         this.contract = details.contract;
         this.component = details.component;
@@ -11,7 +29,7 @@ DE_AKQUINET.hubu.registry = {
         this.hub = details.hub;
         this.properties = details.properties;
 
-        if (this.properties === undefined  || this.properties === null) {
+        if (this.properties === undefined || this.properties === null) {
             this.properties = {}
         } else {
             this.properties = details.properties;
@@ -21,111 +39,155 @@ DE_AKQUINET.hubu.registry = {
         this.properties.service = details.service;
 
         // Validate
-        if (this.id === null || this.component === null  || this.contract === null || this.hub  === null) {
+        if (this.id === null || this.component === null || this.contract === null || this.hub === null) {
             throw {
-                'error': 'invalid service registration',
-                'id': details.id,
-                'component': this.component,
-                'registered': this.registered,
-                'hub' : this.hub,
-                'contract' : this.contract
+                'error':'invalid service registration',
+                'id':details.id,
+                'component':this.component,
+                'registered':this.registered,
+                'hub':this.hub,
+                'contract':this.contract
             }
         }
 
-        this.unregister = function() {
+        this.unregister = function () {
             this.registered = false;
             hub.unregisterService(this);
         }
 
-        this.getProperties = function() {
+        this.getProps = function () {
             return this.properties;
         }
-    },
+    };
 
-    registerService: function(service, component, properties) {
+    hub.registerService = function (service, component, properties) {
         // Increment the service.id
-        var id = this.currentid,
-            props = null,
-            reg = null;
+        var id = nextid,
+            reg;
 
-        this.nextid = this.nextid + 1;
+        nextid = nextid + 1;
 
         reg = {
-            'contract': service,
-            'component': component,
-            'id': id,
-            'properties' : properties,
-            'hub' : this,
-            'id' : id
+            'contract':service,
+            'component':component,
+            'id':id,
+            'properties':properties,
+            'hub':this,
+            'id':id
         };
 
-        this.services.push(new this.ServiceRegistration(reg));
-        this.notify();
+        services.push(new ServiceRegistration(reg));
+        //notify();
         return reg;
-    },
+    };
 
-    unregisterService: function(reg) {
-        var index = this.findServiceIndexById(reg.id),
+    hub.unregisterService = function (reg) {
+        var index = findServiceIndexById(reg.id),
             removedService = null;
 
         if (index !== -1) {
-            removedService = this.services.splice(index, 1);
+            removedService = services.splice(index, 1);
         }
 
         return removedService;
-    },
+    };
 
-    notify : function(reg) {
 
-    },
-
-    unregisterAllServicesFromComponent: function(component) {
+    var unregisterAllServicesFromComponent = function (component) {
         var removedService = null,
             i = 0,
             indexes = [];
 
-        for (; i < this.services.length; i++) {
-            if (this.services[i].component === component) {
+        for (; i < services.length; i++) {
+            if (services[i].component === component) {
                 indexes.push(i);
             }
         }
 
         for (i = indexes.length; i > 0; i--) {
-            this.services.splice(indexes[i], 1);
+            services.splice(indexes[i], 1);
         }
 
         return removedService;
-    },
+    };
 
-    getServiceReferencesByContract: function(service) {
+    hub.findServices = function (contract) {
         var svc = [];
         var i = 0;
-        for (; i < this.services.length; i++) {
-            if (this.services[i].contract === service) {
-                svc.push(this.services[i]);
+        for (; i < services.length; i++) {
+            if (services[i].contract === contract) {
+                svc.push(services[i]);
             }
         }
         return svc;
-    },
+    };
 
-    findServiceById: function(id) {
+    hub.findService = function (contract) {
         var i = 0;
-        for (; i < this.services.length; i++) {
-            if (this.services[i].id === id) {
-                return this.service[i];
+        for (; i < services.length; i++) {
+            if (services[i].contract === contract) {
+                return services[i];
             }
         }
         return null;
-    },
+    };
 
-    findServiceIndexById: function(id) {
+    var findServiceById = function (id) {
         var i = 0;
-        for (; i < this.services.length; i++) {
-            if (this.services[i].id === id) {
+        for (; i < services.length; i++) {
+            if (services[i].id === id) {
+                return services[i];
+            }
+        }
+        return null;
+    };
+
+    var findServiceIndexById = function (id) {
+        var i = 0;
+        for (; i < services.length; i++) {
+            if (services[i].id === id) {
                 return i;
             }
         }
         return -1;
-    }
+    };
 
-}
+    hub.getService = function (contract) {
+        var ref = hub.findService(contract);
+        if (ref !== null) {
+            return this.getServiceForReference(ref);
+        }
+        return null;
+    };
+
+    hub.getServices = function (contract) {
+        var objects = [],
+            refs = this.findService(contract),
+            i = 0;
+
+        if (refs !== null) {
+            for (; i < refs.length; i++) {
+                objects.push(this.getServiceForReference(refs[0]));
+            }
+        }
+        return objects;
+    };
+
+    hub.getServiceForReference = function (reference) {
+        return reference.component;
+    };
+
+    // Public section
+    return {
+        reset:function () {
+            nextid = 0;
+            services = [];
+        },
+
+        unregisterComponent:function (cmp) {
+            unregisterAllServicesFromComponent(cmp);
+        }
+    }
+};
+
+DE_AKQUINET.extensions.service =  new DE_AKQUINET.service(DE_AKQUINET.hubu);
