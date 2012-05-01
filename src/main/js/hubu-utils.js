@@ -103,6 +103,20 @@ DE_AKQUINET.utils.isFunction = function(obj) {
 };
 
 /**
+ * Invokes the given function on the given object if the function exists.
+ * @param obj the instance
+ * @param method the method name to call
+ * @param args {Array} the arguments to pass to the method.
+ * @return either the result of the method. <code>false</code> if the method is not defined.
+ */
+DE_AKQUINET.utils.invoke = function(obj, method, args) {
+    if (DE_AKQUINET.utils.isFunction(obj[method])) {
+        return obj[method].apply(obj, args);
+    }
+    return false;
+}
+
+/**
  * Clones the given object. This create a deep copy of the
  * given object.
  * @param {Object} object the object to clone

@@ -296,9 +296,7 @@ DE_AKQUINET.hubu = function() {
 
             for (; i < extensions.length; i++) {
                 ext = extensions[i];
-                if (DE_AKQUINET.utils.isFunction(ext.reset)) {
-                    ext.reset();
-                }
+                DE_AKQUINET.utils.invoke(ext, "reset", []);
             }
 
             components = [];
