@@ -135,6 +135,8 @@
                         <include>**/hubu.js</include>
                         <include>**/hubu-abstract-component.js</include>
                         <include>**/hubu-utils.js</include>
+                        <include>**/hubu-eventing.js</include>
+                        <include>**/hubu-bind.js</include>
                         <include>**/hubu-service.js</include>
                     </sourceIncludes>
 
@@ -180,6 +182,8 @@
                                         <include>${js.target}/hubu.js</include>
                                         <include>${js.target}/hubu-abstract-component.js</include>
                                         <include>${js.target}/hubu-utils.js</include>
+                                        <include>${js.target}/hubu-eventing.js</include>
+                                        <include>${js.target}/hubu-bind.js</include>
                                         <include>${js.target}/hubu-service.js</include>
                                     </includes>
                                 </aggregation>

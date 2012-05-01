@@ -1,11 +1,31 @@
-(function(hub) {
+/**
+ * Hubu Eventing extension.
+ * This extension manages the event communications between components.
+ * It is recommended to use <tt>topics</tt>.
+ * @class
+ * @name HubuEventingExtension
+ */
+(function (hub) {
+    /**
+    * The given hub.
+    * @private
+    * @memberOf HubuEventingExtension
+    */
     this.hub = hub;
 
     /**
      * The registered listeners
      * @private
+     * @memberOf HubuEventingExtension
      */
     this.listeners = [];
+
+    // Registration.
+    this.hub.registerExtension(this);
+
+    this.reset = function() {
+        this.listeners = [];
+    }
 
     /**
      * Processes the given event sent by the given component.
@@ -19,9 +39,10 @@
      * @return true if the event was consume by at least one
      * component, false otherwise.
      * @private
+     * @methodOf HubuEventingExtension
      */
-    this.processEvent = function(component, event) {
-        if (! event || ! component) {
+    this.processEvent = function (component, event) {
+        if (!event || !component) {
             return false;
         }
 
@@ -30,7 +51,7 @@
             listener = null,
             ev = null;
 
-        for (i = 0; i <listeners.length; i++) {
+        for (i = 0; i < listeners.length; i++) {
             listener = listeners[i];
             // Skip the sender if we're the sender
             if (listener.component !== component) {
@@ -47,18 +68,17 @@
         }
 
         return sent;
-    }
-
-    // Populate the hub.
+    };
 
     /**
      * Gets listeners.
      * Do not modified the result !
      * @return the list of registered listeners.
+     * @methodOf DE_AKQUINET.hubu
      */
-    this.hub.getListeners = function() {
+    this.hub.getListeners = function () {
         return listeners;
-    },
+    };
 
     /**
      * Registers a listener.
@@ -68,32 +88,33 @@
      * matches. This method must returns true or false.
      * @param {Function} callback : the callback method to invoke when
      * a matching event is sent
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.registerListener = function(component, match, callback) {
-            // Nothing can be null
-            if (! component || ! callback || ! match) {
-                throw "Cannot register the listener - all parameters must be defined";
-            }
+    this.hub.registerListener = function (component, match, callback) {
+        // Nothing can be null
+        if (!component || !callback || !match) {
+            throw "Cannot register the listener - all parameters must be defined";
+        }
 
-            // check that the component is plugged to the hub
-            // we don't have to check if the component is valid, because
-            // only valid components can be plugged to the hub.
-            var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
-            if (idx == -1) {
-                throw "Cannot register the listener - The component is not plugged to the hub";
-            }
+        // check that the component is plugged to the hub
+        // we don't have to check if the component is valid, because
+        // only valid components can be plugged to the hub.
+        var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
+        if (idx == -1) {
+            throw "Cannot register the listener - The component is not plugged to the hub";
+        }
 
-            // Add the lister to the listener list:
-            // Create the object
-            var listener = {
-                'component': component,
-                'callback' : callback,
-                'match' : match
-            };
-            // Add the object at the end of the listener array
-            listeners.push(listener);
-            return this;
-        },
+        // Add the lister to the listener list:
+        // Create the object
+        var listener = {
+            'component':component,
+            'callback':callback,
+            'match':match
+        };
+        // Add the object at the end of the listener array
+        listeners.push(listener);
+        return this;
+    };
 
     /**
      * Registers a configurable listener.
@@ -101,33 +122,34 @@
      * registering the listener
      * @param {Object} conf : the configuration object. This object must
      * at least contain 'match' (match function) and 'callback' (the callback)
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.registerConfigurableListener = function(component, conf) {
-            // Nothing can be null
-            if (! component || ! conf || ! conf.match  || ! conf.callback) {
-                throw "Cannot register the listener - all parameters must be defined";
-            }
+    this.hub.registerConfigurableListener = function (component, conf) {
+        // Nothing can be null
+        if (!component || !conf || !conf.match || !conf.callback) {
+            throw "Cannot register the listener - all parameters must be defined";
+        }
 
-            // check that the component is plugged to the hub
-            // we don't have to check if the component is valid, because
-            // only valid components can be plugged to the hub.
-            var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
-            if (idx == -1) {
-                throw "Cannot register the listener - The component is not plugged to the hub";
-            }
+        // check that the component is plugged to the hub
+        // we don't have to check if the component is valid, because
+        // only valid components can be plugged to the hub.
+        var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
+        if (idx == -1) {
+            throw "Cannot register the listener - The component is not plugged to the hub";
+        }
 
-            // Add the lister to the listener list:
-            // Create the object
-            var listener = {
-                'component': component,
-                'callback' : conf.callback,
-                'match' : conf.match
-            };
-            // Add the object at the end of the listener array
-            listeners.push(listener);
+        // Add the lister to the listener list:
+        // Create the object
+        var listener = {
+            'component':component,
+            'callback':conf.callback,
+            'match':conf.match
+        };
+        // Add the object at the end of the listener array
+        listeners.push(listener);
 
-            return this;
-        },
+        return this;
+    };
 
     /**
      * Unregisters listeners for the given component.
@@ -143,62 +165,62 @@
      * @param {DE_AKQUINET.AbstractComponent} component the component
      * @param {Function} callback the callback function (optional)
      * @return the current hub
-     *
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.unregisterListener = function(component, callback) {
-            // Check that we have at least a correct component
-            if (! component) {
+    this.hub.unregisterListener = function (component, callback) {
+        // Check that we have at least a correct component
+        if (!component) {
+            return this;
+        }
+
+        var cmp; // The computed component
+        // Two cases, either component is a String, or an Object
+        if (typeof component === "string") {
+            cmp = this.getComponent(component);
+            // If the component is not plugged,
+            // Exit immediately
+            if (!cmp) {
                 return this;
             }
-
-            var cmp; // The computed component
-            // Two cases, either component is a String, or an Object
-            if (typeof component === "string") {
-                cmp = this.getComponent(component);
-                // If the component is not plugged,
-                // Exit immediately
-                if (! cmp) {
-                    return this;
-                }
-            } else { // It's a component
-                if (! DE_AKQUINET.utils.isComponent(component)) {
-                  throw component + " is not a valid component";
-                } else {
-                    cmp = component;
-                }
-            }
-
-            // So, here cmp is the component.
-            var toRemove = [];
-            var i; // Loop index;
-            var listener;
-            if (callback) {
-                // Must lookup component and callback
-                for (i = 0; i < listeners.length; i++) {
-                    listener = listeners[i];
-                    if (listener.component == cmp  && listener.callback == callback) {
-                        // Match
-                        toRemove.push(listener);
-                    }
-                }
+        } else { // It's a component
+            if (!DE_AKQUINET.utils.isComponent(component)) {
+                throw component + " is not a valid component";
             } else {
-                for (i = 0; i < listeners.length; i++) {
-                    listener = listeners[i];
-                    if (listener.component == cmp) {
-                        // Match
-                        toRemove.push(listener);
-                    }
-                }
+                cmp = component;
             }
+        }
 
-            // We must remove all listeners contained in toRemove
-            for (i = 0; i < toRemove.length; i++) {
-                var idx = DE_AKQUINET.utils.indexOf(listeners, toRemove[i]); // Find the index
-                if (idx != -1) { // Remove it if really found, that should always be the case.
-                    listeners.splice(idx, 1);
+        // So, here cmp is the component.
+        var toRemove = [];
+        var i; // Loop index;
+        var listener;
+        if (callback) {
+            // Must lookup component and callback
+            for (i = 0; i < listeners.length; i++) {
+                listener = listeners[i];
+                if (listener.component == cmp && listener.callback == callback) {
+                    // Match
+                    toRemove.push(listener);
                 }
             }
-        },
+        } else {
+            for (i = 0; i < listeners.length; i++) {
+                listener = listeners[i];
+                if (listener.component == cmp) {
+                    // Match
+                    toRemove.push(listener);
+                }
+            }
+        }
+
+        // We must remove all listeners contained in toRemove
+        for (i = 0; i < toRemove.length; i++) {
+            var idx = DE_AKQUINET.utils.indexOf(listeners, toRemove[i]); // Find the index
+            if (idx != -1) { // Remove it if really found, that should always be the case.
+                listeners.splice(idx, 1);
+            }
+        }
+    };
 
     /**
      * Sends an event inside the hub.
@@ -210,14 +232,15 @@
      * @param {Object} event the event
      * @return true if the event was delivered to at least
      * one component, false otherwise
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.sendEvent = function(component, event) {
-            if (! component || ! event) {
-                return false;
-            }
+    this.hub.sendEvent = function (component, event) {
+        if (!component || !event) {
+            return false;
+        }
 
-            return processEvent(component, event);
-        },
+        return processEvent(component, event);
+    };
 
     /**
      * Subscribes to a specific topic.
@@ -227,42 +250,44 @@
      * @param {Function} callback : the callback method to invoke when
      * a matching event is sent
      * @param {Function} filter : optional method to filter received events.
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.subscribe = function(component, topic, callback, filter) {
-            if (! component || ! topic || ! callback) {
-                return this;
-            }
-
-            var match;
-            var regex = new RegExp(topic);
-            if (!filter  || !DE_AKQUINET.utils.isFunction(filter)) {
-                match = function(event) {
-                    return regex.test(event.topic);
-                };
-            } else {
-                match = function(event) {
-                    return regex.test(event.topic)  && filter(event);
-                };
-            }
-
-            hub.registerConfigurableListener(component, {
-                'match' : match,
-                'callback' : callback,
-                'topic' : topic // Useless but just for information
-            });
-
+    this.hub.subscribe = function (component, topic, callback, filter) {
+        if (!component || !topic || !callback) {
             return this;
+        }
 
-        },
+        var match;
+        var regex = new RegExp(topic);
+        if (!filter || !DE_AKQUINET.utils.isFunction(filter)) {
+            match = function (event) {
+                return regex.test(event.topic);
+            };
+        } else {
+            match = function (event) {
+                return regex.test(event.topic) && filter(event);
+            };
+        }
+
+        hub.registerConfigurableListener(component, {
+            'match':match,
+            'callback':callback,
+            'topic':topic // Useless but just for information
+        });
+
+        return this;
+
+    };
 
     /**
      * Unsubscribes the subscriber.
      * @param {Object} component the component
      * @param {Function} callback the registered callback
+     * @methodOf DE_AKQUINET.hubu
      */
-     hub.unsubscribe = function(component, callback) {
-            return hub.unregisterListener(component, callback);
-        },
+    hub.unsubscribe = function (component, callback) {
+        return hub.unregisterListener(component, callback);
+    };
 
     /**
      * Publishes an event to a specific topic.
@@ -275,16 +300,14 @@
      * @param {Object} event the event
      * @return true if the event was delivered to at least
      * one component, false otherwise
+     * @methodOf DE_AKQUINET.hubu
      */
-        this.hub.publish = function(component, topic, event) {
-            if (! component || ! topic || ! event) {
-                return false;
-            }
-            event.topic = topic;
-            return hub.sendEvent(component, event);
+    this.hub.publish = function (component, topic, event) {
+        if (!component || !topic || !event) {
+            return false;
         }
-
+        event.topic = topic;
+        return hub.sendEvent(component, event);
+    };
 
 })(DE_AKQUINET.hubu);
-
-console.dir(DE_AKQUINET.hubu);
