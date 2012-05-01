@@ -31,7 +31,7 @@ describe("Service Mechanism Test Suite", function () {
                 return 'source';
             },
             start: function() {
-                reg = this.hub.registerService(contract, component)
+                this.reg = this.hub.registerService(contract, component)
             },
             stop: function() { },
             configure: function(hub) {
@@ -41,7 +41,7 @@ describe("Service Mechanism Test Suite", function () {
                 return "my name";
             },
             unreg: function() {
-                this.hub.unregisterService(reg);
+                this.hub.unregisterService(this.reg);
             }
         };
 
