@@ -98,7 +98,7 @@ DE_AKQUINET.utils.warn = function(message){
  */
 DE_AKQUINET.utils.isFunction = function(obj) {
     // We need to specify the exact function
-    // because toString can be overriden by browser.
+    // because toString can be overridden by browser.
     return Object.prototype.toString.call(obj) === "[object Function]";
 };
 
