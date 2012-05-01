@@ -55,25 +55,6 @@ DE_AKQUINET.hubu = function() {
      */
     started = false;
 
-    /**
-     * Checks if the given component implements the
-     * 'component' protocol (i.e.e interface).
-     * @param {DE_AKQUINET.AbstractComponent} component the component to check
-     * @return true if this is a valid component,
-     * false otherwise.
-     * @private
-     */
-    function checkComponent(component) {
-        // if component is null, return false
-        if (! component) {
-            return false;
-        }
-
-        return DE_AKQUINET.utils
-            .isObjectConformToContract(component,
-                new DE_AKQUINET.AbstractComponent());
-    }
-
 
     /**
      * Public hub interface
@@ -145,7 +126,7 @@ DE_AKQUINET.hubu = function() {
             }
 
             // Check the validity of the component.
-            if (! checkComponent(component)) {
+            if (! DE_AKQUINET.utils.isComponent(component)) {
                 if (component.getComponentName) {
                     throw component.getComponentName() + " is not a valid component";
                 } else {
@@ -220,7 +201,7 @@ DE_AKQUINET.hubu = function() {
                    return this;
                }
             } else {
-                if (! checkComponent(component)) {
+                if (! DE_AKQUINET.utils.isComponent(component)) {
                     throw component + " is not a valid component";
                 } else {
                     cmp = component;
@@ -322,7 +303,7 @@ DE_AKQUINET.hubu = function() {
                    throw "Cannot bind components - 'component' is not plugged to the hub";
                }
             } else { // It's a component
-                if (! checkComponent(binding.component)) {
+                if (! DE_AKQUINET.utils.isComponent(binding.component)) {
                     throw binding.component + " is not a valid component";
                 } else {
                     component = binding.component;
@@ -355,7 +336,7 @@ DE_AKQUINET.hubu = function() {
                    throw "Cannot bind components - 'to' is not plugged to the hub";
                }
             } else { // It's a component
-                if (! checkComponent(binding.to)) {
+                if (! DE_AKQUINET.utils.isComponent(binding.to)) {
                     throw binding.to + " is not a valid component";
                 } else {
                     to = binding.to;

@@ -157,6 +157,25 @@ DE_AKQUINET.utils.createProxyForContract = function(contract, object) {
 };
 
 /**
+ * Checks if the given component implements the
+ * 'component' protocol (i.e. interface).
+ * @param {DE_AKQUINET.AbstractComponent} component the component to check
+ * @return true if this is a valid component,
+ * false otherwise.
+ * @private
+ */
+DE_AKQUINET.utils.isComponent = function(component) {
+    // if component is null, return false
+    if (! component) {
+        return false;
+    }
+
+    return DE_AKQUINET.utils
+        .isObjectConformToContract(component,
+        new DE_AKQUINET.AbstractComponent());
+}
+
+/**
  * Creates a function object calling the
  * method m on the object o with the correct parameters.
  * @param {Object} o the object

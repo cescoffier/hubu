@@ -161,11 +161,11 @@
                     return this;
                 }
             } else { // It's a component
-                //if (! checkComponent(component)) {
-                  //  throw component + " is not a valid component";
-                //} else {
+                if (! DE_AKQUINET.utils.isComponent(component)) {
+                  throw component + " is not a valid component";
+                } else {
                     cmp = component;
-                //}
+                }
             }
 
             // So, here cmp is the component.
