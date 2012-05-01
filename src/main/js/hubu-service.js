@@ -1,19 +1,46 @@
-/**
- * DE_AKQUINET package declaration.
- * This declaration makes sure to not erase the
- * current declaration. If the package does not
- * exist an empty object is created.
- * @default {}
- */
-var DE_AKQUINET = DE_AKQUINET || {};
-
-DE_AKQUINET.hubu = DE_AKQUINET.hubu  || {};
-
 DE_AKQUINET.hubu.registry = {
 
     services: [],
     nextid: 0,
 
+    ServiceRegistration: function(details) {
+        this.id = details.id;
+        this.contract = details.contract;
+        this.component = details.component;
+        this.registered = true;
+        this.hub = details.hub;
+        this.properties = details.properties;
+
+        if (this.properties === undefined  || this.properties === null) {
+            this.properties = {}
+        } else {
+            this.properties = details.properties;
+        }
+
+        this.properties.id = details.id;
+        this.properties.service = details.service;
+
+        // Validate
+        if (this.id === null || this.component === null  || this.contract === null || this.hub  === null) {
+            throw {
+                'error': 'invalid service registration',
+                'id': details.id,
+                'component': this.component,
+                'registered': this.registered,
+                'hub' : this.hub,
+                'contract' : this.contract
+            }
+        }
+
+        this.unregister = function() {
+            this.registered = false;
+            hub.unregisterService(this);
+        }
+
+        this.getProperties = function() {
+            return this.properties;
+        }
+    },
 
     registerService: function(service, component, properties) {
         // Increment the service.id
@@ -23,24 +50,17 @@ DE_AKQUINET.hubu.registry = {
 
         this.nextid = this.nextid + 1;
 
-        if (properties === undefined  || properties === null) {
-            props = {}
-        } else {
-            props = properties;
-        }
-
-        props.id = id;
-        props.service = service;
-
         reg = {
             'contract': service,
             'component': component,
             'id': id,
-            'properties' : props
+            'properties' : properties,
+            'hub' : this,
+            'id' : id
         };
 
-        this.services.push(reg);
-
+        this.services.push(new this.ServiceRegistration(reg));
+        this.notify();
         return reg;
     },
 
@@ -53,6 +73,10 @@ DE_AKQUINET.hubu.registry = {
         }
 
         return removedService;
+    },
+
+    notify : function(reg) {
+
     },
 
     unregisterAllServicesFromComponent: function(component) {
