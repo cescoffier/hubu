@@ -222,6 +222,14 @@ DE_AKQUINET.hubu = function() {
                };
            }
 
+            // Inject the hub.
+            if (component.__hub__ === undefined  && component.hub === undefined) {
+                component.__hub__ = this;
+                component.hub = function() {
+                    return this.__hub__;
+                }
+            }
+
            // Call configure on the component
            // We pass the current hub
            component.configure(this, configuration);
