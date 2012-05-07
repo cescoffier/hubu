@@ -128,6 +128,8 @@ DE_AKQUINET.hubu = function() {
          * @return the current hub
          */
         registerComponent : function(component, configuration) {
+            var ext; // Extension.
+
             if (!component) {
                 throw "Cannot register component - component is null";
             }
@@ -168,6 +170,11 @@ DE_AKQUINET.hubu = function() {
                 component.hub = function() {
                     return this.__hub__;
                 }
+            }
+
+            // Notify extensions
+            for (ext in DE_AKQUINET.extensions) {
+                DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "registerComponent", [component]);
             }
 
            // Call configure on the component
