@@ -1,4 +1,16 @@
 /**
+ * Represents the different type of service events
+ * @type {Object}
+ */
+DE_AKQUINET.ServiceEventType = {
+    // TODO Support service modification
+    REGISTERED : 1,
+    //MODIFIED : 2,
+    UNREGISTERING : 4
+    //MODIFIED_ENDMATCH : 8
+}
+
+/**
  * Hubu Service extension.
  * This extension manages the service bindings between components.
  * @class
