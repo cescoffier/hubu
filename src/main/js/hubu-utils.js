@@ -117,6 +117,21 @@ DE_AKQUINET.utils.invoke = function(obj, method, args) {
 }
 
 /**
+ * Adds the given function to the given object if the object does not already have a member using the given name.
+ * @param obj the object
+ * @param name the name of the function to add
+ * @param func the function to append to the object
+ * @return {Boolean}
+ */
+DE_AKQUINET.utils.defineFunctionIfNotExist = function(obj, name, func) {
+    if (obj[name] === undefined) {
+        obj[name] = func;
+        return true;
+    }
+    return false;
+}
+
+/**
  * Clones the given object. This create a deep copy of the
  * given object.
  * @param {Object} object the object to clone
