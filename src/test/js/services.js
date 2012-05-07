@@ -205,11 +205,9 @@ describe("Service Mechanism Test Suite", function () {
         var listener = {
             events : [],
             serviceChanged : function(event) {
-                console.dir(event);
                 this.events.push(event)
             },
             matches : function(ref) {
-                console.log("match : "  + ref.getProperty("prop") + " ? " +  (ref.getProperty("prop") == "good"));
                 return ref.getProperty("prop") == "good";
             }
         }
@@ -236,9 +234,7 @@ describe("Service Mechanism Test Suite", function () {
 
             expect(listener.events.length).toBe(1);
 
-            console.log("component on un-registration");
             hub.unregisterComponent(cmp2);
-            console.log("after");
 
             expect(listener.events.length).toBe(2);
 //            expect(listener.events[1].type).toBe(DE_AKQUINET.ServiceEventType.UNREGISTERING);
