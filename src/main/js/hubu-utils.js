@@ -243,6 +243,16 @@ DE_AKQUINET.utils.indexOf = function(array, obj) {
     }
 };
 
+DE_AKQUINET.utils.removeElementFromArray = function(array, obj) {
+    var i;
+    for(i = 0; i < array.length; i++){
+        if(array[i] == obj){
+            array.splice(i, 1);
+
+        }
+    }
+};
+
 /**
  * Loads a javascript script dynamically.
  * This method requires the DOM, so cannot be used
