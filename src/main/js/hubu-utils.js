@@ -224,7 +224,7 @@ DE_AKQUINET.utils.bind = function(o, m) {
  * its own indexof.
  * @param {Object} array the array
  * @param {Object} obj the object
- * @return the index of the object 'obj' in the array or
+ * @return {Number} the index of the object 'obj' in the array or
  * -1 if not found.
  */
 DE_AKQUINET.utils.indexOf = function(array, obj) {
@@ -248,7 +248,6 @@ DE_AKQUINET.utils.removeElementFromArray = function(array, obj) {
     for(i = 0; i < array.length; i++){
         if(array[i] == obj){
             array.splice(i, 1);
-
         }
     }
 };

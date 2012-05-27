@@ -40,7 +40,6 @@ var DE_AKQUINET = DE_AKQUINET || {};
  */
 DE_AKQUINET.extensions = DE_AKQUINET.extensions || {};
 
-
 /**
  * H-Ubu module.
  * This module defines the H-UBU framework.
@@ -301,7 +300,15 @@ DE_AKQUINET.hubu = function() {
     };
 } ();
 
-
+/**
+ * Defines component states.
+ * @type {Object}
+ */
+DE_AKQUINET.ComponentState = {
+    STOPPED: 0,
+    INVALID : 1 ,
+    VALID : 2
+}
 
 /**
  * Hub alias.

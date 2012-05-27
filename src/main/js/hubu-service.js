@@ -173,6 +173,7 @@ DE_AKQUINET.service = function (hub) {
         this.bind = details.bind  || null;
         this.unbind = details.unbind || null;
         this.proxy = details.proxy || true;
+        this.injected = [];
 
         // Validation
         if (this.contract === undefined || this.contract === null) {
@@ -199,18 +200,90 @@ DE_AKQUINET.service = function (hub) {
             }
         }
 
-        this.onServiceDeparture = function(details) {
-
-        }
-
-        this.onServiceArrival = function(details) {
-            if (this.aggregate) {
-                this.inject(details);
+        // Service listener
+        this.matches = function(ref) {
+            if (this.filter != null) {
+                return this.filter(ref)
+            } else {
+                return true;
             }
         }
 
-        this.inject = function(options) {
+        this.serviceChanged = function(event) {
+            if (event.type == DE_AKQUINET.ServiceEventType.REGISTERED) {
+                this.manageServiceArrival(event.reference);
+                return;
+            }
+            if (event.type == DE_AKQUINET.ServiceEventType.UNREGISTERING) {
+                this.manageServiceDeparture(event.reference);
+                return;
+            }
+        }
 
+        // register the service lister
+        this.hub.registerServiceListener(this);
+
+
+        this.manageServiceArrival = function(ref) {
+            if (this.aggregate) {
+                this.inject(ref);
+            } else {
+                // If already injected. just do nothing.
+                if (this.injected.length == 0) {
+                    this.inject(ref);
+                }
+            }
+        }
+
+        this.manageServiceDeparture = function(ref) {
+            if (DE_AKQUINET.utils.indexOf(this.injected, ref) !== -1) {
+                DE_AKQUINET.utils.removeElementFromArray(this.injected, ref);
+                this.uninject(ref);
+                if (! this.optional  && this.injected.length == 0) {
+                    // TODO We reach an invalid state, we should unregister all services.
+                }
+            }
+        }
+
+        this.inject = function(ref) {
+            this.injected.push(ref);
+            if (this.field !== null) {
+                if (this.aggregate) {
+                    this.component[this.field] = this.component[this.field] || [];
+                    this.component[this.field].push(this.hub.getServiceForReference(ref));
+                } else {
+                    this.component[this.field] = this.hub.getServiceForReference(ref);
+                }
+            }
+
+            if (this.bind !== null) {
+                if (DE_AKQUINET.utils.isFunction(this.component[this.bind])) {
+                    this.component[this.bind](this.hub.getServiceForReference(ref));
+                } else if (DE_AKQUINET.utils.isFunction(this.bind)) {
+                    this.bind(this.hub.getServiceForReference(ref));
+                }
+            }
+
+        }
+
+        this.uninject = function(ref) {
+            DE_AKQUINET.utils.removeElementFromArray(this.injected, ref);
+            if (this.field !== null) {
+                if (this.aggregate) {
+                    this.component[this.field] = this.component[this.field] || [];
+                    DE_AKQUINET.utils.removeElementFromArray(this.component[this.field], ref);
+                } else {
+                    this.component[this.field] = null;
+                }
+            }
+
+            if (this.unbind !== null) {
+                if (DE_AKQUINET.utils.isFunction(this.component[this.unbind])) {
+                    this.component[this.unbind](this.hub.getServiceForReference(ref));
+                } else if (DE_AKQUINET.utils.isFunction(this.unbind)) {
+                    this.unbind(this.hub.getServiceForReference(ref));
+                }
+            }
         }
 
         //this.hub.registerServiceListener(this, this.contract, this.filter);
