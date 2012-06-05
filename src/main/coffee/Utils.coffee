@@ -98,29 +98,51 @@ logger = global.HUBU.logger;
 utils.typeOf = (ref) ->
   return Object.prototype.toString.call(ref)
 
+###
+# Checks that the given object is conform to the given contract
+# The contract is a javascript object.
+# The conformity is computed as follow:
+#
+# `O is conform to C if and only if for all i in C where C[i] != null O[i] != null && typeof(C[i]) = typeOf(O[i])`
+#
+# This is an implementation of 'Chi':
+# `Metamodel <- chi <- Model -> mu -> System`
+# where chi is : isObjectConformToContract and mu is representationOf.
+# @param object the object to check
+# @param contract the contract
+# @return true if the object is conform with the given contract, false otherwise.
+###
 utils.isObjectConformToContract = (object, contract) ->
   # For all 'properties' from contract, check that the object has an equivalent property
   for props of contract
     # We need to check that the property is defined on the given object.
     if not object[props]?
       logger.warn "Object not conform to contract - property #{props} missing"
-      return false;
+      return false
     else
       # Check whether we have the right type
       if @typeOf(contract[props]) isnt (@typeOf object[props])
         logger.warn "Object not conform to contract - the type of the property #{props} does not match.
           Expected '" + @typeOf(contract[props]) + "' but found '" + @typeOf(object[props]) + "'"
-        return false;
+        return false
   # We're done !
   return true
 
+###
+# Utility method to check if the given object is a function. This code comes from JQuery.
+# @param {Object} obj the object to check
+# @returns `true` if the given object is a function, `false` otherwise
+###
 utils.isFunction = (ref) ->
   # We need to specify the exact function because toString can be overridden by browser.
   return @typeOf(ref) is "[object Function]";
 
 ###
 # Invokes the method `method` on the object `target` with the arguments `args` (Array).
-# Returns the invocation result or `false` if the method is not defined for the object (or if it's not a function).
+# @param obj the instance
+# @param method the method name to call
+# @param args {Array} the arguments to pass to the method.
+# @return either the result of the method. `false` if the method is not defined, or is not a function.
 ###
 utils.invoke = (target, method, args) ->
   if (target[method]?  and @isFunction(target[method]))
@@ -131,36 +153,56 @@ utils.invoke = (target, method, args) ->
 # Extends the given object `obj` with the given function `func`. Basically, if the `obj[name]` is not defined, then
 # this method extends `obj` with `obj[name]=func`
 # If the method is added, the method returns `true`, `false` otherwise.
+# @param obj the object
+# @param name the name of the function to add
+# @param func the function to append to the object
+# @return {Boolean}
 ###
 utils.defineFunctionIfNotExist = (obj, name, func) ->
   if (not obj[name]?)
-    obj[name] = func;
-    return true;
-  return false;
+    obj[name] = func
+    return true
+  return false
 
+###
+# Clone an object (deep copy).
+# @param obj {Object} the object to clone
+# @return the cloned object, or the object itself if it's not an object.
+###
 utils.clone = (obj) ->
-  # TODO What about function ?
-  # TODO I'm not sure that this function is really efficient
-  newObj = {}
+  if not obj? or typeof obj isnt 'object'
+    return obj
 
-  # Bind the prototype.
-  newObj.prototype = obj.prototype
-  for props of obj
-    # For all properties of the object, we clone or just bind.
-    if obj.hasOwnProperty(props)
-      if (@typeOf obj[props]) is "[object Object]"
-        # Clone nested objects.
-        newObj[props] = @clone(obj[props])
-      else
-        # Bind for not all non-objects.
-        newObj[props] = obj[props]
+  if obj instanceof Date
+    return new Date(obj.getTime())
 
-  return newObj
+  if obj instanceof RegExp
+    flags = ''
+    flags += 'g' if obj.global?
+    flags += 'i' if obj.ignoreCase?
+    flags += 'm' if obj.multiline?
+    flags += 'y' if obj.sticky?
+    return new RegExp(obj.source, flags)
+
+  newInstance = new obj.constructor()
+
+  for key of obj
+    newInstance[key] = @clone obj[key]
+
+  return newInstance
+
 
 utils.bind = (obj, method) ->
   return ->
     return method.apply(obj, Array.prototype.slice.call(arguments))
 
+
+###
+# Creates a proxy hiding the given object. The proxy implements the contract (and only the contract).
+# @param {Object} contract the contract
+# @param {Object} object the object to proxy
+# @return the proxy
+###
 utils.createProxyForContract = (contract, object) ->
   proxy = {}
 
@@ -178,17 +220,27 @@ utils.createProxyForContract = (contract, object) ->
     else
       # Everything else is just referenced.
       proxy[props] = object[props];
-
   return proxy;
 
+###
+# Checks if the given component implements the 'component' protocol (i.e. interface).
+# @param {Object} component the component to check
+# @return `true` if this is a valid component, `false` otherwise.
+###
 utils.isComponent = (component) ->
   # if component is null, return false
   if (not component?)
     return false;
-
   return @isObjectConformToContract(component, new HUBU.AbstractComponent());
 
-
+###
+# indexOf function.
+# This method delegates on `Array.indexOf` if it exists. If not (IE), it just implements its own indexOf with simple
+# lookup
+# @param {Object} array the array
+# @param {Object} obj the object
+# @return the index of the object 'obj' in the array or -1 if not found.
+###
 utils.indexOf = (array, obj) ->
   # If the indexOf method is defined, use it
   if (Array.prototype.indexOf?)
@@ -196,18 +248,21 @@ utils.indexOf = (array, obj) ->
   else
     # Else, we do a simple lookup
     for v of array
-      return true if array.v is obj
-    return false
+      return v if array.v is obj
+    return -1
 
 ###
-# Could probably be better.
+# Removes the object or value `obj` from the array `array`.
+# Even if the array is modified in place, thie method returns the final array.
+# All occurence of `obj` are removed from the array
+# @param array the array
+# @param obj the reference to remove
+# @return the final array
 ###
 utils.removeElementFromArray = (array, obj) ->
   for v of array
-    if (array.v is obj)
-      array.splice(i, 1);
-
-
+    array.splice(v, 1) if array[v] is obj
+  return array
 
 ###
 # End of the contract and reflection related methods
