@@ -53,7 +53,7 @@ DE_AKQUINET.eventing = function (hub) {
             if (listener.component !== component) {
                 // Check match method
                 // We clone the event to avoid modification impact
-                ev = DE_AKQUINET.utils.clone(event);
+                ev = HUBU.UTILS.clone(event);
                 ev.source = component;
 
                 if (listener.match.apply(listener.component, [ev])) {
@@ -97,7 +97,7 @@ DE_AKQUINET.eventing = function (hub) {
         // check that the component is plugged to the hub
         // we don't have to check if the component is valid, because
         // only valid components can be plugged to the hub.
-        var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
+        var idx = HUBU.UTILS.indexOf(hub.getComponents(), component);
         if (idx == -1) {
             throw "Cannot register the listener - The component is not plugged to the hub";
         }
@@ -131,7 +131,7 @@ DE_AKQUINET.eventing = function (hub) {
         // check that the component is plugged to the hub
         // we don't have to check if the component is valid, because
         // only valid components can be plugged to the hub.
-        var idx = DE_AKQUINET.utils.indexOf(hub.getComponents(), component);
+        var idx = HUBU.UTILS.indexOf(hub.getComponents(), component);
         if (idx == -1) {
             throw "Cannot register the listener - The component is not plugged to the hub";
         }
@@ -181,7 +181,7 @@ DE_AKQUINET.eventing = function (hub) {
                 return this;
             }
         } else { // It's a component
-            if (!DE_AKQUINET.utils.isComponent(component)) {
+            if (!HUBU.UTILS.isComponent(component)) {
                 throw component + " is not a valid component";
             } else {
                 cmp = component;
@@ -213,7 +213,7 @@ DE_AKQUINET.eventing = function (hub) {
 
         // We must remove all listeners contained in toRemove
         for (i = 0; i < toRemove.length; i++) {
-            var idx = DE_AKQUINET.utils.indexOf(listeners, toRemove[i]); // Find the index
+            var idx = HUBU.UTILS.indexOf(listeners, toRemove[i]); // Find the index
             if (idx != -1) { // Remove it if really found, that should always be the case.
                 listeners.splice(idx, 1);
             }
@@ -257,7 +257,7 @@ DE_AKQUINET.eventing = function (hub) {
 
         var match;
         var regex = new RegExp(topic);
-        if (!filter || !DE_AKQUINET.utils.isFunction(filter)) {
+        if (!filter || !HUBU.UTILS.isFunction(filter)) {
             match = function (event) {
                 return regex.test(event.topic);
             };

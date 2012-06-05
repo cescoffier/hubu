@@ -101,7 +101,7 @@ DE_AKQUINET.hubu = function() {
                 cmp = components[i];
                 // Check that we have the getComponentName function
                 fc = cmp.getComponentName;
-                if (DE_AKQUINET.utils.isFunction(fc)) {
+                if (HUBU.UTILS.isFunction(fc)) {
                     n = fc.apply(cmp, []); // Invoke the method.
                     if (name === n) {
                         // Only on match, just return.
@@ -135,7 +135,7 @@ DE_AKQUINET.hubu = function() {
             }
 
             // Check the validity of the component.
-            if (! DE_AKQUINET.utils.isComponent(component)) {
+            if (! HUBU.UTILS.isComponent(component)) {
                 if (component.getComponentName) {
                     throw component.getComponentName() + " is not a valid component";
                 } else {
@@ -174,7 +174,7 @@ DE_AKQUINET.hubu = function() {
 
             // Notify extensions
             for (ext in DE_AKQUINET.extensions) {
-                DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "registerComponent", [component]);
+                HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "registerComponent", [component]);
             }
 
            // Call configure on the component
@@ -215,7 +215,7 @@ DE_AKQUINET.hubu = function() {
                    return this;
                }
             } else {
-                if (! DE_AKQUINET.utils.isComponent(component)) {
+                if (! HUBU.UTILS.isComponent(component)) {
                     throw component + " is not a valid component";
                 } else {
                     cmp = component;
@@ -224,12 +224,12 @@ DE_AKQUINET.hubu = function() {
 
             // Iterate on the components array to find the component to
             // unregister.
-            idx = DE_AKQUINET.utils.indexOf(components, cmp); // Find the index
+            idx = HUBU.UTILS.indexOf(components, cmp); // Find the index
             if (idx !== -1) { // Remove it if really found
 
                 // Notify all extensions
                 for (ext in DE_AKQUINET.extensions) {
-                    DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "unregisterComponent", [cmp]);
+                    HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "unregisterComponent", [cmp]);
                 }
                 // Call stop on the component
                 cmp.stop();
@@ -291,7 +291,7 @@ DE_AKQUINET.hubu = function() {
             this.stop();
 
             for (ext in DE_AKQUINET.extensions) {
-                DE_AKQUINET.utils.invoke(DE_AKQUINET.extensions[ext], "reset", []);
+                HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "reset", []);
             }
 
             components = [];

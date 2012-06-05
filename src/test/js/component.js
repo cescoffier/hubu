@@ -212,6 +212,7 @@ describe("Component Mechanism Test Suite", function () {
             expect(cmp.stop_call).toBe(1); // Check that stop was called.
         } catch (e) {
             jasmine.log(e);
+            console.log(e.toString());
             this.fail("Unexpected component reject");
         }
     })

@@ -52,7 +52,7 @@ DE_AKQUINET.binding = function (hubu) {
                 throw "Cannot bind components - 'component' is not plugged to the hub";
             }
         } else { // It's a component
-            if (! DE_AKQUINET.utils.isComponent(binding.component)) {
+            if (! HUBU.UTILS.isComponent(binding.component)) {
                 throw binding.component + " is not a valid component";
             } else {
                 component = binding.component;
@@ -62,13 +62,13 @@ DE_AKQUINET.binding = function (hubu) {
         if (binding.contract) {
             // A contract is set, check that the component is confform to the contract
             // We cannot do this checking before because the component was unknown
-            if (! DE_AKQUINET.utils.isObjectConformToContract(component, binding.contract)) {
+            if (! HUBU.UTILS.isObjectConformToContract(component, binding.contract)) {
                 throw "Cannot bind components - 'component' is not conform to the contract";
             } else {
                 // Do we have to create a proxy ?
                 if (binding.proxy === undefined  || binding.proxy) {
                     // Create the proxy
-                    component = DE_AKQUINET.utils.createProxyForContract(binding.contract, component);
+                    component = HUBU.UTILS.createProxyForContract(binding.contract, component);
                 } // else {
                 // Direct injection
                 // component = component so nothing to do.
@@ -85,7 +85,7 @@ DE_AKQUINET.binding = function (hubu) {
                 throw "Cannot bind components - 'to' is not plugged to the hub";
             }
         } else { // It's a component
-            if (! DE_AKQUINET.utils.isComponent(binding.to)) {
+            if (! HUBU.UTILS.isComponent(binding.to)) {
                 throw binding.to + " is not a valid component";
             } else {
                 to = binding.to;
@@ -94,7 +94,7 @@ DE_AKQUINET.binding = function (hubu) {
 
         // Detect injection mechanism
         // First case, into is a function
-        if (DE_AKQUINET.utils.isFunction(binding.into)) {
+        if (HUBU.UTILS.isFunction(binding.into)) {
             // We call the function on the 'to' object
             // We pass 'component' as parameter
             binding.into.apply(to, [component]);
@@ -108,7 +108,7 @@ DE_AKQUINET.binding = function (hubu) {
                 // injector already exist
                 // if it's a function call the function otherwise
                 // assign the value
-                if (DE_AKQUINET.utils.isFunction(injector)) {
+                if (HUBU.UTILS.isFunction(injector)) {
                     injector.apply(to, [component]);
                 } else {
                     to[binding.into] = component;
