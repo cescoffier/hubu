@@ -53,6 +53,27 @@
 
         <plugins>
             <plugin>
+                <groupId>com.voltvoodoo</groupId>
+                <artifactId>brew</artifactId>
+                <version>0.2.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <coffeeSourceDir>${basedir}/src/main/coffee</coffeeSourceDir>
+                    <coffeeOutputDir>${js.target}</coffeeOutputDir>
+                    <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
+                    <hamlOutputDir>${js.target}</hamlOutputDir>
+                    <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
                 <executions>
@@ -80,21 +101,6 @@
                 <artifactId>jasmine-maven-plugin</artifactId>
                 <version>1.1.0</version>
                 <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <id>test regular version</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- use the filtered version -->
-                            <jsSrcDir>${js.target}</jsSrcDir>
-                            <!-- Other parameters are taken from the default configuration -->
-
-                            <junitXmlReportFileName>TEST-jasmine-regular.xml</junitXmlReportFileName>
-                        </configuration>
-                    </execution>
-
                     <execution>
                         <goals>
                             <goal>test</goal>
@@ -129,12 +135,12 @@
                 </executions>
                 <configuration>
                     <!-- Default configuration used by jasmine:bdd  -->
-                    <jsSrcDir>src/main/js</jsSrcDir>
+                    <jsSrcDir>src/main</jsSrcDir>
 
                     <sourceIncludes>
+                        <include>**/AbstractComponent.coffee</include>
+                        <include>**/Utils.coffee</include>
                         <include>**/hubu.js</include>
-                        <include>**/hubu-abstract-component.js</include>
-                        <include>**/hubu-utils.js</include>
                         <include>**/hubu-eventing.js</include>
                         <include>**/hubu-bind.js</include>
                         <include>**/hubu-service.js</include>
@@ -179,9 +185,9 @@
                                     <output>${project.build.directory}/hubu-all.js</output>
 
                                     <includes>
+                                        <include>${js.target}/AbstractComponent.js</include>
+                                        <include>${js.target}/Utils.js</include>
                                         <include>${js.target}/hubu.js</include>
-                                        <include>${js.target}/hubu-abstract-component.js</include>
-                                        <include>${js.target}/hubu-utils.js</include>
                                         <include>${js.target}/hubu-eventing.js</include>
                                         <include>${js.target}/hubu-bind.js</include>
                                         <include>${js.target}/hubu-service.js</include>
