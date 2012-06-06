@@ -77,6 +77,14 @@ global.Logger = class Logger
 global.HUBU.logger = new Logger("hubu")
 logger = global.HUBU.logger;
 
+global.Exception = class Exception
+  data: {}
+
+  constructor: (message) ->
+    @message = message
+
+  add: (key, value) -> @data.key = value; return @
+
 
 ###
 # Contract and Reflection related methods
