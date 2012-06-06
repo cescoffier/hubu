@@ -95,16 +95,23 @@ global.Exception = class Exception
 # the Object `toString` method.
 # Here are the different results :
 #
-# *`typeOf(1)` => "[object Number]"
-# *`typeOf({})` => "[object Object]"
-# *`typeOf([])` => "[object Array]"
-# *`typeOf(null)` => "[object Null]"
-# *`typeOf(function() {})` => "[object Function]"
+# *`typeOf(1)` => "number"
+# *`typeOf({})` => "object"
+# *`typeOf([])` => "array"
+# *`typeOf(function() {})` => "function"
+# *`typeOf(null)` => "null"
 #
-# Be aware that this method failed on `undefined` objects.
 ###
-utils.typeOf = (ref) ->
-  return Object.prototype.toString.call(ref)
+utils.typeOf = (obj) ->
+  if not obj?
+    return String obj
+  classToType = new Object
+  for name in "Boolean Number String Function Array Date RegExp".split(" ")
+    classToType["[object " + name + "]"] = name.toLowerCase()
+  myClass = Object.prototype.toString.call obj
+  if myClass of classToType
+    return classToType[myClass]
+  return "object"
 
 ###
 # Checks that the given object is conform to the given contract
@@ -143,7 +150,7 @@ utils.isObjectConformToContract = (object, contract) ->
 ###
 utils.isFunction = (ref) ->
   # We need to specify the exact function because toString can be overridden by browser.
-  return @typeOf(ref) is "[object Function]";
+  return @typeOf(ref) is "function";
 
 ###
 # Invokes the method `method` on the object `target` with the arguments `args` (Array).

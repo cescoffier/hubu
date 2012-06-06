@@ -33,7 +33,7 @@ global.HUBU.Binding = class Binding
   ###
   getComponent : (obj) ->
     component = null # The component object.
-    if HUBU.UTILS.typeOf(obj) is "[object String]"
+    if HUBU.UTILS.typeOf(obj) is "string"
       return @_hub.getComponent(obj)
 
     if HUBU.UTILS.isComponent(obj) then return obj
@@ -73,8 +73,8 @@ global.HUBU.Binding = class Binding
     # Determine the injection method
     switch HUBU.UTILS.typeOf(binding.into)
       # Call the bind function
-      when "[object Function]" then binding.into.apply(to, [component])
-      when "[object String]"
+      when "function" then binding.into.apply(to, [component])
+      when "string"
         # It can be the name of a function or a (scalar) field
         # If `[to[binding.into]` does not exist, inject it:
         if not to[binding.into]? then to[binding.into] = component
