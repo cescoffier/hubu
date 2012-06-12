@@ -345,11 +345,11 @@ describe("Event Mechanism Test Suite", function () {
 
             // Unregistration
             hub.unregisterListener('foo', cb2);
-            expect(listeners.length).toBe(2);
+            expect(hub.getListeners().length).toBe(2);
             hub.unregisterListener(cmp2, cb3);
-            expect(listeners.length).toBe(1);
+            expect(hub.getListeners().length).toBe(1);
             hub.unregisterListener(cmp);
-            expect(listeners.length).toBe(0);
+            expect(hub.getListeners().length).toBe(0);
         } catch (e) {
             jasmine.log(e);
             this.fail("Unexpected component reject " + e);

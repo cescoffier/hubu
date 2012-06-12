@@ -249,6 +249,24 @@ utils.isComponent = (component) ->
   return @isObjectConformToContract(component, new HUBU.AbstractComponent());
 
 ###
+# Checks wheter the given component is plugged on the given hub.
+# The component can be given as string (component name) or as object (component object)
+# @param {Object} or {String} component the component to check
+# @param hub the hub
+@ @return `true` is the component is plugged on the hub, `false` otherwise
+###
+utils.isComponentPlugged = (component, hub) ->
+  if @typeOf(component) is "string"
+    return hub.getComponent(component) isnt null
+
+  if @typeOf(component) is "object"
+    return @indexOf(hub.getComponents(), component) isnt -1
+
+  return false
+
+
+
+###
 # indexOf function.
 # This method delegates on `Array.indexOf` if it exists. If not (IE), it just implements its own indexOf with simple
 # lookup
@@ -268,7 +286,7 @@ utils.indexOf = (array, obj) ->
 
 ###
 # Removes the object or value `obj` from the array `array`.
-# Even if the array is modified in place, thie method returns the final array.
+# Even if the array is modified in place, this method returns the final array.
 # All occurence of `obj` are removed from the array
 # @param array the array
 # @param obj the reference to remove

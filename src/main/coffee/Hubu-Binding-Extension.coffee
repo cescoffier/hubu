@@ -72,25 +72,28 @@ global.HUBU.Binding = class Binding
 
     # Determine the injection method
     switch HUBU.UTILS.typeOf(binding.into)
-      # Call the bind function
+    # Call the bind function
       when "function" then binding.into.apply(to, [component])
       when "string"
-        # It can be the name of a function or a (scalar) field
-        # If `[to[binding.into]` does not exist, inject it:
+      # It can be the name of a function or a (scalar) field
+      # If `[to[binding.into]` does not exist, inject it:
         if not to[binding.into]? then to[binding.into] = component
-        # If `[to[binding.into]` is a function invoke it:
+          # If `[to[binding.into]` is a function invoke it:
         else if HUBU.UTILS.isFunction(to[binding.into]) then to[binding.into].apply(to, [component])
-        # If `[to[binding.into]` is a member, assign it:
+          # If `[to[binding.into]` is a member, assign it:
         else to[binding.into] = component
       else
-        # Unsupported injection type
+      # Unsupported injection type
         throw new Exception("Cannot bind components = 'into' must be either a function or a string")
-          .add("into", binding.into)
+        .add("into", binding.into)
 
-  # End of the bind method.
+# End of the bind method.
 
 # Declare the extension
 DE_AKQUINET.extensions.binding =  new Binding(DE_AKQUINET.hubu);
+
+
+
 
 
 

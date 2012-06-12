@@ -168,14 +168,14 @@
                         <include>**/AbstractComponent.coffee</include>
                         <include>**/Utils.coffee</include>
                         <include>**/hubu.js</include>
-                        <include>**/hubu-eventing.js</include>
+                        <include>**/Hubu-Eventing-Extension.coffee</include>
                         <include>**/Hubu-Binding-Extension.coffee</include>
                         <include>**/hubu-service.js</include>
                     </sourceIncludes>
 
                     <specIncludes>
                         <include>**/*.js</include>
-
+                        <include>**/MyComponents.coffee</include>
                     </specIncludes>
 
                     <!-- Common test configuration, shared by all executions -->
@@ -219,7 +219,7 @@
                                         <include>${js.target}/AbstractComponent.js</include>
                                         <include>${js.target}/Utils.js</include>
                                         <include>${js.target}/hubu.js</include>
-                                        <include>${js.target}/hubu-eventing.js</include>
+                                        <include>${js.target}/hubu-Eventing-Extension.js</include>
                                         <include>${js.target}/Hubu-Binding-Extension.js</include>
                                         <include>${js.target}/hubu-service.js</include>
                                     </includes>
