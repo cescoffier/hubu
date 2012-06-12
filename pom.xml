@@ -39,6 +39,7 @@
     <properties>
         <site.path>snapshot</site.path>
         <js.target>${basedir}/target/js</js.target>
+        <js.target.test>${basedir}/target/test-js</js.target.test>
     </properties>
 
     <licenses>
@@ -62,15 +63,32 @@
                             <goal>compile</goal>
                         </goals>
                         <phase>compile</phase>
+                        <id>compile-coffeescript</id>
+                        <configuration>
+                            <coffeeSourceDir>${basedir}/src/main/coffee</coffeeSourceDir>
+                            <coffeeOutputDir>${js.target}</coffeeOutputDir>
+                            <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
+                            <hamlOutputDir>${js.target}</hamlOutputDir>
+                            <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                        <id>compile-test-coffeescript</id>
+                        <configuration>
+                            <coffeeSourceDir>${basedir}/src/test/coffee</coffeeSourceDir>
+                            <coffeeOutputDir>${js.target.test}</coffeeOutputDir>
+                            <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
+                            <hamlOutputDir>${js.target}</hamlOutputDir>
+                            <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <coffeeSourceDir>${basedir}/src/main/coffee</coffeeSourceDir>
-                    <coffeeOutputDir>${js.target}</coffeeOutputDir>
-                    <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
-                    <hamlOutputDir>${js.target}</hamlOutputDir>
-                    <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
-                </configuration>
+
             </plugin>
 
             <plugin>
@@ -109,10 +127,14 @@
                         <id>test aggregated version</id>
                         <configuration>
                             <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <jsTestSrcDir>${basedir}</jsTestSrcDir>
                             <sourceIncludes>
                                 <include>**/hubu-all.js</include>
                             </sourceIncludes>
-
+                            <specIncludes>
+                                <include>src/test/js**/*.js</include>
+                                <include>target/test-js/MyComponents.js</include>
+                            </specIncludes>
                             <junitXmlReportFileName>TEST-jasmine-aggregated.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
@@ -124,11 +146,15 @@
                         <phase>integration-test</phase>
                         <id>test minified version</id>
                         <configuration>
-                            <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <jsSrcDir>${project.build.directory}/classes</jsSrcDir>
+                            <jsTestSrcDir>${basedir}</jsTestSrcDir>
                             <sourceIncludes>
                                 <include>**/hubu-all-min.js</include>
                             </sourceIncludes>
-
+                            <specIncludes>
+                                <include>src/test/js**/*.js</include>
+                                <include>target/test-js/MyComponents.js</include>
+                            </specIncludes>
                             <junitXmlReportFileName>TEST-jasmine-minified.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
@@ -136,6 +162,7 @@
                 <configuration>
                     <!-- Default configuration used by jasmine:bdd  -->
                     <jsSrcDir>src/main</jsSrcDir>
+                    <jsTestSrcDir>src/test</jsTestSrcDir>
 
                     <sourceIncludes>
                         <include>**/AbstractComponent.coffee</include>
@@ -146,8 +173,12 @@
                         <include>**/hubu-service.js</include>
                     </sourceIncludes>
 
+                    <specIncludes>
+                        <include>**/*.js</include>
+
+                    </specIncludes>
+
                     <!-- Common test configuration, shared by all executions -->
-                    <jsTestSrcDir>src/test/js</jsTestSrcDir>
                     <preloadSources>
                         <preloadSource>
                             ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
