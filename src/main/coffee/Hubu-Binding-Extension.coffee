@@ -90,7 +90,7 @@ global.HUBU.Binding = class Binding
 # End of the bind method.
 
 # Declare the extension
-DE_AKQUINET.extensions.binding =  new Binding(DE_AKQUINET.hubu);
+DE_AKQUINET.extensions.binding =  new Binding(global.hub);
 
 
 

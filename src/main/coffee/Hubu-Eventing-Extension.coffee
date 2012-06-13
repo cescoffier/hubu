@@ -250,4 +250,4 @@ global.HUBU.Eventing = class Eventing
 ### End of the Eventing class  ###
 
 # Declare the extension
-DE_AKQUINET.extensions.eventing =  new Eventing(DE_AKQUINET.hubu)
+DE_AKQUINET.extensions.eventing =  new Eventing(global.hub)

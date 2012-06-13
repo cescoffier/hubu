@@ -389,4 +389,4 @@ DE_AKQUINET.service = function (hub) {
     }
 };
 
-DE_AKQUINET.extensions.service =  new DE_AKQUINET.service(DE_AKQUINET.hubu);
+DE_AKQUINET.extensions.service =  new DE_AKQUINET.service(hub);
