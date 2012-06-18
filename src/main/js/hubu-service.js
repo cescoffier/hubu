@@ -421,7 +421,7 @@ DE_AKQUINET.service = function (hub) {
     }
 
     hub.unregisterServiceListener = function(listener) {
-        DE_AKQUINET.utils.removeElementFromArray(listeners, listener);
+        HUBU.UTILS.removeElementFromArray(listeners, listener);
         return this;
     }
 
@@ -440,11 +440,11 @@ DE_AKQUINET.service = function (hub) {
 
     var registerComponent = function (cmp) {
         // Populate the component - provides
-        DE_AKQUINET.utils.defineFunctionIfNotExist(cmp, "provides", function(options) {
+        HUBU.UTILS.defineFunctionIfNotExist(cmp, "provides", function(options) {
             this.__hub__.registerService(options.contract, this, options.props);
         });
 
-        DE_AKQUINET.utils.defineFunctionIfNotExist(cmp, "requires", function(options) {
+        HUBU.UTILS.defineFunctionIfNotExist(cmp, "requires", function(options) {
             this.__hub__.registerService(contract, this, props);
         });
 
@@ -462,4 +462,4 @@ DE_AKQUINET.service = function (hub) {
     }
 };
 
-DE_AKQUINET.extensions.service =  new DE_AKQUINET.service(DE_AKQUINET.hubu);
+DE_AKQUINET.extensions.service =  new DE_AKQUINET.service(hub);

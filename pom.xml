@@ -39,6 +39,7 @@
     <properties>
         <site.path>snapshot</site.path>
         <js.target>${basedir}/target/js</js.target>
+        <js.target.test>${basedir}/target/test-js</js.target.test>
     </properties>
 
     <licenses>
@@ -52,6 +53,44 @@
     <build>
 
         <plugins>
+            <plugin>
+                <groupId>com.voltvoodoo</groupId>
+                <artifactId>brew</artifactId>
+                <version>0.2.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <id>compile-coffeescript</id>
+                        <configuration>
+                            <coffeeSourceDir>${basedir}/src/main/coffee</coffeeSourceDir>
+                            <coffeeOutputDir>${js.target}</coffeeOutputDir>
+                            <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
+                            <hamlOutputDir>${js.target}</hamlOutputDir>
+                            <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                        <id>compile-test-coffeescript</id>
+                        <configuration>
+                            <coffeeSourceDir>${basedir}/src/test/coffee</coffeeSourceDir>
+                            <coffeeOutputDir>${js.target.test}</coffeeOutputDir>
+                            <hamlSourceDir>${basedir}/src/main/coffee</hamlSourceDir>
+                            <hamlOutputDir>${js.target}</hamlOutputDir>
+                            <!-- Set this to do auto-compilation when a file is changed <watch>true</watch> -->
+                        </configuration>
+                    </execution>
+                </executions>
+
+            </plugin>
+
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
@@ -81,21 +120,6 @@
                 <version>1.1.0</version>
                 <executions>
                     <execution>
-                        <phase>test</phase>
-                        <id>test regular version</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- use the filtered version -->
-                            <jsSrcDir>${js.target}</jsSrcDir>
-                            <!-- Other parameters are taken from the default configuration -->
-
-                            <junitXmlReportFileName>TEST-jasmine-regular.xml</junitXmlReportFileName>
-                        </configuration>
-                    </execution>
-
-                    <execution>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -103,10 +127,14 @@
                         <id>test aggregated version</id>
                         <configuration>
                             <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <jsTestSrcDir>${basedir}</jsTestSrcDir>
                             <sourceIncludes>
                                 <include>**/hubu-all.js</include>
                             </sourceIncludes>
-
+                            <specIncludes>
+                                <include>src/test/js**/*.js</include>
+                                <include>target/test-js/MyComponents.js</include>
+                            </specIncludes>
                             <junitXmlReportFileName>TEST-jasmine-aggregated.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
@@ -118,30 +146,39 @@
                         <phase>integration-test</phase>
                         <id>test minified version</id>
                         <configuration>
-                            <jsSrcDir>${project.build.directory}</jsSrcDir>
+                            <jsSrcDir>${project.build.directory}/classes</jsSrcDir>
+                            <jsTestSrcDir>${basedir}</jsTestSrcDir>
                             <sourceIncludes>
                                 <include>**/hubu-all-min.js</include>
                             </sourceIncludes>
-
+                            <specIncludes>
+                                <include>src/test/js**/*.js</include>
+                                <include>target/test-js/MyComponents.js</include>
+                            </specIncludes>
                             <junitXmlReportFileName>TEST-jasmine-minified.xml</junitXmlReportFileName>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <!-- Default configuration used by jasmine:bdd  -->
-                    <jsSrcDir>src/main/js</jsSrcDir>
+                    <jsSrcDir>src/main</jsSrcDir>
+                    <jsTestSrcDir>src/test</jsTestSrcDir>
 
                     <sourceIncludes>
-                        <include>**/hubu.js</include>
-                        <include>**/hubu-abstract-component.js</include>
-                        <include>**/hubu-utils.js</include>
-                        <include>**/hubu-eventing.js</include>
-                        <include>**/hubu-bind.js</include>
+                        <include>**/AbstractComponent.coffee</include>
+                        <include>**/Utils.coffee</include>
+                        <include>**/Hub.coffee</include>
+                        <include>**/Hubu-Eventing-Extension.coffee</include>
+                        <include>**/Hubu-Binding-Extension.coffee</include>
                         <include>**/hubu-service.js</include>
                     </sourceIncludes>
 
+                    <specIncludes>
+                        <include>**/*.js</include>
+                        <include>**/MyComponents.coffee</include>
+                    </specIncludes>
+
                     <!-- Common test configuration, shared by all executions -->
-                    <jsTestSrcDir>src/test/js</jsTestSrcDir>
                     <preloadSources>
                         <preloadSource>
                             ${basedir}/src/test/resources/mootools-core-1.4.5-full-nocompat.js
@@ -179,11 +216,11 @@
                                     <output>${project.build.directory}/hubu-all.js</output>
 
                                     <includes>
-                                        <include>${js.target}/hubu.js</include>
-                                        <include>${js.target}/hubu-abstract-component.js</include>
-                                        <include>${js.target}/hubu-utils.js</include>
-                                        <include>${js.target}/hubu-eventing.js</include>
-                                        <include>${js.target}/hubu-bind.js</include>
+                                        <include>${js.target}/AbstractComponent.js</include>
+                                        <include>${js.target}/Utils.js</include>
+                                        <include>${js.target}/Hub.js</include>
+                                        <include>${js.target}/hubu-Eventing-Extension.js</include>
+                                        <include>${js.target}/Hubu-Binding-Extension.js</include>
                                         <include>${js.target}/hubu-service.js</include>
                                     </includes>
                                 </aggregation>
