@@ -170,7 +170,7 @@
                         <include>**/Hub.coffee</include>
                         <include>**/Hubu-Eventing-Extension.coffee</include>
                         <include>**/Hubu-Binding-Extension.coffee</include>
-                        <include>**/hubu-service.js</include>
+                        <include>**/Hubu-SOC-Extension.coffee</include>
                     </sourceIncludes>
 
                     <specIncludes>
@@ -221,7 +221,7 @@
                                         <include>${js.target}/Hub.js</include>
                                         <include>${js.target}/hubu-Eventing-Extension.js</include>
                                         <include>${js.target}/Hubu-Binding-Extension.js</include>
-                                        <include>${js.target}/hubu-service.js</include>
+                                        <include>${js.target}/Hubu-SOC-Extension.js</include>
                                     </includes>
                                 </aggregation>
                             </aggregations>

@@ -85,6 +85,8 @@ global.Exception = class Exception
 
   add: (key, value) -> @data.key = value; return @
 
+  toString : -> return @message
+
 
 ###
 # Contract and Reflection related methods
