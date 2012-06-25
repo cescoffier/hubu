@@ -146,13 +146,22 @@ utils.isObjectConformToContract = (object, contract) ->
   return true
 
 ###
-# Utility method to check if the given object is a function. This code comes from JQuery.
+# Utility method to check if the given object is a function.
 # @param {Object} obj the object to check
 # @returns `true` if the given object is a function, `false` otherwise
 ###
 utils.isFunction = (ref) ->
   # We need to specify the exact function because toString can be overridden by browser.
   return @typeOf(ref) is "function";
+
+###
+# Utility method to check if the given object is an object.
+# @param {Object} obj the object to check
+# @returns `true` if the given object is an object, `false` otherwise
+###
+utils.isObject = (ref) ->
+  # We need to specify the exact function because toString can be overridden by browser.
+  return @typeOf(ref) is "object";
 
 ###
 # Invokes the method `method` on the object `target` with the arguments `args` (Array).
