@@ -209,7 +209,7 @@ SOC.ServiceRegistry = class ServiceRegistry
         # Callback
         ref = registration.getReference()
         registration.unregister();
-        @fireServiceEvent(new SOC.ServiceEvent(SOC.ServiceEvent.UNREGISTERING), ref)
+        @fireServiceEvent(new SOC.ServiceEvent(SOC.ServiceEvent.UNREGISTERING, ref))
         return true;
     # Not found
     throw new Exception "Cannot unregister service - registration not found"
@@ -314,7 +314,7 @@ SOC.ServiceRegistry = class ServiceRegistry
   ###
   fireServiceEvent : (event, oldProps) ->
     for listener in @_listeners
-      matched = not listener.filter? or @_testAgainstFilter(listener, event.reference)
+      matched = not listener.filter? or @_testAgainstFilter(listener, event.getReference())
       if (matched)
         @_invokeServiceListener(listener, event)
       else if (event.type is SOC.ServiceEvent.MODIFIED and oldProps?)
@@ -325,7 +325,7 @@ SOC.ServiceRegistry = class ServiceRegistry
   # End fireServiceEvent
 
   _testAgainstFilter : (listener, ref) ->
-      listener.listener.filter(listener.component, ref)
+      return listener.filter.match(ref)
 
   _invokeServiceListener : (listener, event) ->
     if global.HUBU.UTILS.isFunction(listener.listener)
