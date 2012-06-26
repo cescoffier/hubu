@@ -298,8 +298,8 @@ describe("H-UBU Service Registry Tests", function () {
         expect(refs.length).toBe(0);
 
         // Register the listeners
-        registry.registerServiceListener(component1, listenAllContractService)
-        registry.registerServiceListener(component1, listenFrContractService)
+        registry.registerServiceListener(listenAllContractService)
+        registry.registerServiceListener(listenFrContractService)
 
         var reg = registry.registerService(component1, contract, {lg : "en"});
         expect(reg.isRegistered()).toBe(true);
@@ -421,8 +421,8 @@ describe("H-UBU Service Registry Tests", function () {
         expect(refs.length).toBe(0);
 
         // Register the listeners
-        registry.registerServiceListener(component1, listenAllContractService)
-        registry.registerServiceListener(component1, listenFrContractService)
+        registry.registerServiceListener(listenAllContractService)
+        registry.registerServiceListener(listenFrContractService)
 
         var reg = registry.registerService(component1, contract, {lg : "en"});
         expect(reg.isRegistered()).toBe(true);
@@ -447,7 +447,7 @@ describe("H-UBU Service Registry Tests", function () {
         expect(listenFrContractService.bindCount).toBe(1)
 
         // Unregister the listenFrContractService
-        registry.unregisterServiceListener(component1, listenFrContractService);
+        registry.unregisterServiceListener(listenFrContractService);
 
         // Unregister
         registry.unregisterService(reg);
