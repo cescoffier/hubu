@@ -3,26 +3,15 @@
 # This extension allows to bind components together using direct binding declaration
 ###
 
-###
-# Detects whether we exports on the Commons.js `exports` object or on `this` (so the Browser `window` object).
-###
-global = exports ? this
-
-###
-# Create the object hierarchy: `HUBU` and `HUBU.UTILS`.
-###
-global.HUBU = global.HUBU ? {}
-global.HUBU.EXTENSIONS = global.HUBU.EXTENSIONS ? {}
-
-global.HUBU.Binding = class Binding
+HUBU.Binding = class Binding
   _hub : null
 
   constructor : (hubu) ->
     @_hub  = hubu
     ### Injection  of the bind method ###
+    myExtension = @
     @_hub.bind = (binding) ->
-      # We use the global reference on the binding extension
-      DE_AKQUINET.extensions.binding.bind(binding)
+      myExtension.bind(binding)
       return this
   # End constructor
 
@@ -90,11 +79,4 @@ global.HUBU.Binding = class Binding
 # End of the bind method.
 
 # Declare the extension
-DE_AKQUINET.extensions.binding =  new Binding(global.hub);
-
-
-
-
-
-
-
+getHubuExtensions().binding =  Binding;

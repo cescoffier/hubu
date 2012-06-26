@@ -7,15 +7,13 @@ TODO Used by -> the usage graph
 TODO Several contract within a registration
 TODO Service Ranking
 TODO Factories / Object creation strategy ?
+TODO Service Modification and END_MATCH
 ###
 
-global = exports ? this
 
-global.HUBU = global.HUBU ? {}
-global.HUBU.EXTENSIONS = global.HUBU.EXTENSIONS ? {}
-global.SOC = global.SOC ? {}
+getGlobal().SOC = getGlobal().SOC ? {}
 
-SOC = global.SOC
+SOC = getGlobal().SOC
 
 ###
 # Service Registrations represents a published service from the publisher point of view.
@@ -47,8 +45,8 @@ SOC.ServiceRegistration = class ServiceRegistration
 
 
   @getAndIncId : ->
-    id = global.SOC.ServiceRegistration._nextId
-    global.SOC.ServiceRegistration._nextId = global.SOC.ServiceRegistration._nextId + 1
+    id = SOC.ServiceRegistration._nextId
+    SOC.ServiceRegistration._nextId = SOC.ServiceRegistration._nextId + 1
     return id
 
   constructor : (contract, component, properties, hub) ->
@@ -182,7 +180,7 @@ SOC.ServiceRegistry = class ServiceRegistry
   registerService: (component, contract, properties) ->
     if not contract? then throw new Exception "Cannot register a service without a proper contract"
     if not component? then throw new Exception "Cannot register a service without a valid component"
-    if not global.HUBU.UTILS.isObjectConformToContract(component, contract)
+    if not HUBU.UTILS.isObjectConformToContract(component, contract)
       throw new Exception("Cannot register service - the component does not implement the contract")
         .add("contract", contract).add("component", component)
 
@@ -269,7 +267,7 @@ SOC.ServiceRegistry = class ServiceRegistry
     if not ref? then throw new Exception("Cannot get service - the reference is null")
 
     if (not ref.isValid())
-      global.HUBU.logger.warn("Cannot retrieve service for " + ref + " - the reference is invalid")
+      HUBU.logger.warn("Cannot retrieve service for " + ref + " - the reference is invalid")
       return null
 
     return ref._registration._component
@@ -277,9 +275,8 @@ SOC.ServiceRegistry = class ServiceRegistry
   ungetService : (component, ref) ->
     # nothing to do yet.
 
-  registerServiceListener : (component, listenerConfig) ->
+  registerServiceListener : (listenerConfig) ->
     {contract, filter, listener} = listenerConfig
-    if not component? then throw new Exception("Can't register the service listener, the component is invalid")
     if not listener? then throw new Exception("Can't register the service listener, the listener is not set")
       .add("listenerConfig", listenerConfig)
 
@@ -288,25 +285,23 @@ SOC.ServiceRegistry = class ServiceRegistry
       listener : listener
       filter : newFilter
       contract: contract
-      component: component
     }
 
     # Listener can be either be a function or an object
-    if global.HUBU.UTILS.isObject(listener)
-      if not global.HUBU.UTILS.isObjectConformToContract(listener, SOC.ServiceListener)
+    if HUBU.UTILS.isObject(listener)
+      if not HUBU.UTILS.isObjectConformToContract(listener, SOC.ServiceListener)
         throw new Exception("Can't register the service listener, the listener is not conform to the Service Listener contract")
 
     @_listeners.push(svcListener)
 
 
-  unregisterServiceListener : (component, listenerConfig) ->
+  unregisterServiceListener : (listenerConfig) ->
     {contract, filter, listener} = listenerConfig
-    if not component? then throw new Exception("Can't register the service listener, the component is invalid")
-    if not listener? then throw new Exception("Can't register the service listener, the listener is not set")
+    if not listener? then throw new Exception("Can't unregister the service listener, the listener is not set")
       .add("listenerConfig", listenerConfig)
 
     for list in @_listeners
-      if list.component is component and list.contract is contract and list.listener is listener
+      if list.contract is contract and list.listener is listener
         HUBU.UTILS.removeElementFromArray(@_listeners, list)
 
   ###
@@ -328,10 +323,10 @@ SOC.ServiceRegistry = class ServiceRegistry
       return listener.filter.match(ref)
 
   _invokeServiceListener : (listener, event) ->
-    if global.HUBU.UTILS.isFunction(listener.listener)
+    if HUBU.UTILS.isFunction(listener.listener)
       # Invoke the function on the component object
       listener.listener(event)
-    else if global.HUBU.UTILS.isObject(listener.listener)
+    else if HUBU.UTILS.isObject(listener.listener)
       # Invoke `serviceChanged` on the object.
       # The conformity was checked before
       listener.serviceChanged(event)

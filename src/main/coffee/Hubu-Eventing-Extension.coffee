@@ -1,19 +1,10 @@
-
 ###
 # Hubu Eventing Extension
 # This extension manages the event communications between components.
 # It is recommended to use `topics` instead of direct events.
 ###
 
-###
-# Detects whether we exports on the Commons.js `exports` object or on `this` (so the Browser `window` object).
-###
-global = exports ? this
-
-global.HUBU = global.HUBU ? {}
-global.HUBU.EXTENSIONS = global.HUBU.EXTENSIONS ? {}
-
-global.HUBU.Eventing = class Eventing
+HUBU.Eventing = class Eventing
   _hub : null
   _listeners : null
 
@@ -23,13 +14,14 @@ global.HUBU.Eventing = class Eventing
     @_listeners = []
 
     # Populate the hub object
+    myExtension = @
 
     ###
     # Gets the registered event listeners.
     # *Do not modified the result !*
     # @return the list of registered listeners.
     ###
-    @_hub.getListeners = -> return DE_AKQUINET.extensions.eventing._listeners
+    @_hub.getListeners = -> return myExtension._listeners
 
     ###
     # Registers an event listener.
@@ -47,16 +39,16 @@ global.HUBU.Eventing = class Eventing
     ###
     @_hub.registerListener = (component, conf...) ->
       if (conf.length >= 2)
-        DE_AKQUINET.extensions.eventing.registerListener(component, conf[0], conf[1]); return this
+        myExtension.registerListener(component, conf[0], conf[1]); return this
       else
-        DE_AKQUINET.extensions.eventing.registerListener(component, conf[1]); return this
+        myExtension.registerListener(component, conf[1]); return this
 
     ###
     # *Deprecated method*, use `registerListener` instead.
     ###
     @_hub.registerConfigurableListener = (component, conf) ->
       HUBU.logger.warn("registerConfigurableListener is a deprecated method and may disappear at any time, use registerListener instead")
-      DE_AKQUINET.extensions.eventing.registerListener(component, conf); return this
+      myExtension.registerListener(component, conf); return this
 
     ###
     # Unregisters listeners for the given component. According to the arguments, several cases occur:
@@ -70,7 +62,7 @@ global.HUBU.Eventing = class Eventing
     # @return the current hub
     ###
     @_hub.unregisterListener = (component, callback) ->
-      DE_AKQUINET.extensions.eventing.unregisterListener(component, callback); return this
+      myExtension.unregisterListener(component, callback); return this
 
     ###
     # Sends an event inside the hub. If component or event is null, the method does nothing. If not, the event processed
@@ -81,7 +73,7 @@ global.HUBU.Eventing = class Eventing
     # @methodOf DE_AKQUINET.hubu
     ###
     @_hub.sendEvent = (component, event) ->
-      return DE_AKQUINET.extensions.eventing.sendEvent(component, event)
+      return myExtension.sendEvent(component, event)
 
     ###
     # Subscribes to a specific topic.
@@ -93,7 +85,7 @@ global.HUBU.Eventing = class Eventing
     # @methodOf DE_AKQUINET.hubu
     ###
     @_hub.subscribe = (component, topic, callback, filter) ->
-      DE_AKQUINET.extensions.eventing.subscribe(component, topic, callback, filter); return this
+      myExtension.subscribe(component, topic, callback, filter); return this
 
     ###
     # Unsubscribes the subscriber.
@@ -103,7 +95,7 @@ global.HUBU.Eventing = class Eventing
     # @return the current hub
     ###
     @_hub.unsubscribe = (component, callback) ->
-      DE_AKQUINET.extensions.eventing.unsubscribe(component, callback); return this
+      myExtension.unsubscribe(component, callback); return this
 
     ###
     # Publishes an event to a specific topic. If component, topic or event is null, the method does nothing. If not,
@@ -115,7 +107,7 @@ global.HUBU.Eventing = class Eventing
     # @methodOf DE_AKQUINET.hubu
     ###
     @_hub.publish = (component, callback, event) ->
-      DE_AKQUINET.extensions.eventing.publish(component, callback, event); return this
+      myExtension.publish(component, callback, event); return this
 
   ### End of constructor  ###
 
@@ -250,4 +242,4 @@ global.HUBU.Eventing = class Eventing
 ### End of the Eventing class  ###
 
 # Declare the extension
-DE_AKQUINET.extensions.eventing =  new Eventing(global.hub)
+getHubuExtensions().eventing =  Eventing

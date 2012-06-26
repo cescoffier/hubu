@@ -2,21 +2,12 @@
 # Utility methods used by H-UBU
 ###
 
-###
-# Detects whether we exports on the Commons.js `exports` object or on `this` (so the Browser `window` object).
-###
-global = exports ? this
-
-###
-# Create the object hierarchy: `HUBU` and `HUBU.UTILS`.
-###
-global.HUBU = global.HUBU ? {}
-global.HUBU.UTILS = global.HUBU.UTILS ? {}
+HUBU.UTILS = HUBU.UTILS ? {}
 
 # Create a private alias.
-utils = global.HUBU.UTILS;
+utils = HUBU.UTILS;
 
-global.namespace = (target, name, block) ->
+getGlobal().namespace = (target, name, block) ->
   [target, name, block] = [(if typeof exports isnt 'undefined' then exports else window), arguments...] if arguments.length < 3
   top    = target
   target = target[item] or= {} for item in name.split '.'
@@ -30,7 +21,7 @@ global.namespace = (target, name, block) ->
 # The logger defines the common logging methods: `debug`, `info`, `warn` and `error`.
 # By default the log level is set to INFO, but can be adjusted using the `setLevel` method.
 ###
-global.Logger = class Logger
+getGlobal().Logger = class Logger
   @DEBUG : 0
   @INFO : 1
   @WARNING : 2
@@ -74,10 +65,10 @@ global.Logger = class Logger
 ### End of Logger class  ###
 
 # Main hubu logger.
-global.HUBU.logger = new Logger("hubu")
-logger = global.HUBU.logger;
+HUBU.logger = new Logger("hubu")
+logger = HUBU.logger;
 
-global.Exception = class Exception
+getGlobal().Exception = class Exception
   data: {}
 
   constructor: (message) ->

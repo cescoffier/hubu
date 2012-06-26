@@ -2,21 +2,11 @@
 # Hub Class
 ###
 
-###
-# Detects whether we exports on the Commons.js `exports` object or on `this` (so the Browser `window` object).
-###
-global = exports ? this
-
-global.HUBU = global.HUBU ? {}
-
-#TODO To change...
-global.DE_AKQUINET = global.DE_AKQUINET ? {}
-global.DE_AKQUINET.extensions = global.DE_AKQUINET.extensions ? [];
 
 ###
 # The Hub Class.
 ###
-global.HUBU.Hub = class Hub
+HUBU.Hub = class Hub
   ###
   # The component plugged to the hub.
   # @type {Array}
@@ -30,9 +20,19 @@ global.HUBU.Hub = class Hub
   ###
   _started : false
 
+  ###
+  # The list of extensions plugged on this hub.
+  ###
+  _extensions : []
+
   constructor: ->
     @_components = []
     @_started = false
+    @_extensions = []
+
+    for name,ext of getHubuExtensions()
+      HUBU.logger.info("Initializing new hub with the " + name + " extension")
+      @_extensions.push(new ext(@))
 
   ###
   # Gets all plugged components.
@@ -112,8 +112,8 @@ global.HUBU.Hub = class Hub
 
     HUBU.logger.debug("Registering component " + component.getComponentName())
     # Notify extensions
-    for ext of DE_AKQUINET.extensions
-      HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "registerComponent", [component])
+    for ext in @_extensions
+      HUBU.UTILS.invoke(ext, "registerComponent", [component])
 
     # Call configure on the component, we pass the current hub
     HUBU.logger.debug("Configuring component " + component.getComponentName())
@@ -157,8 +157,8 @@ global.HUBU.Hub = class Hub
     if idx isnt -1
       # Remove it if really found
       # Notify all extensions
-      for ext of DE_AKQUINET.extensions
-        HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "unregisterComponent", [cmp]);
+      for ext in @_extensions
+        HUBU.UTILS.invoke(ext, "unregisterComponent", [cmp]);
       # Call stop on the component
       cmp.stop();
       @_components.splice(idx, 1);
@@ -205,8 +205,8 @@ global.HUBU.Hub = class Hub
   reset: ->
     @.stop()
 
-    for ext of DE_AKQUINET.extensions
-      HUBU.UTILS.invoke(DE_AKQUINET.extensions[ext], "reset", []);
+    for ext in @_extensions
+      HUBU.UTILS.invoke(ext, "reset", []);
 
     @_components = [];
 
@@ -215,4 +215,4 @@ global.HUBU.Hub = class Hub
 ### End of th Hub Class ###
 
 ### Create the main Global hub, and the `hub` alias ###
-global.hub = new global.HUBU.Hub()
+getGlobal().hub = new HUBU.Hub()

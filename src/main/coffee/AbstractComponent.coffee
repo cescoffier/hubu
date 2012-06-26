@@ -3,16 +3,6 @@
 ###
 
 ###
-# Detects whether we exports on the Commons.js `exports` object or on `this` (so the Browser `window` object).
-###
-global = exports ? this
-
-###
-# Create the object hierarchy: `HUBU` and `HUBU.UTILS`.
-###
-global.HUBU = global.HUBU ? {}
-
-###
 # Abstract Component class.
 # This used is not intended to be used directly, and is just here for documentation purpose.
 # Indeed, the returned object contains the four required methods that <bold>all</bold> component must
@@ -25,7 +15,7 @@ global.HUBU = global.HUBU ? {}
 # 
 # Returned objects do not intend to be used, they are just mock / empty instances.
 ###
-global.HUBU.AbstractComponent = class AbstractComponent
+HUBU.AbstractComponent = class AbstractComponent
 
   ###
   # Configures the component.
