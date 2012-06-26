@@ -1,0 +1,82 @@
+Service-Orientation
+===================
+
+This page explains how is built the service-orientation.
+
+Concepts and OSGi
+-----------------
+H-UBU's Service Orientation is closely related to OSGi Service Layer, and so you will recognize the same 'concepts'.
+Basically, service-orientations consits into 4 entities:
+
+* _Service Specification_ : the description of the service.
+* _Service Registry_ : storing the currently available services.
+* _Service Publisher_ : implementing and publishing a service specification.
+* _Service Consumer_ : looking for services and using them
+
+
+H-UBU service orientation implements those concepts using the following entities:
+
+*Service Specification*
+Services are represented by _specification_. We actually used H-UBU's _Contract_ as specification. Providers implements
+_contracts_, and consumers requires _contracts_.
+
+*Service Properties*
+Each service providers can decide to add properties to a service. Those properties will be published with the service and
+be used for service selection.
+
+*Service Registration*
+When a component publishes a service inside the service registry it receives a service registration object. This object
+is required to unregisters the service or to modify the service properties.
+
+*Service Reference*
+When a component requires a service, it first performs a lookup within the service registry. The results of this lookup
+is a list of service reference. Each returned service reference contains the service properties (published by the
+provider). It enables service filtering and selection.
+
+*Service Binding*
+Once a component has selected the 'ideal' service reference it can get the service object by asking the registry to
+get the service object from a specific reference.
+
+*Service Events*
+Services are dynamic by nature, so can be published, modified and unpublished at anytime. Consumers can _listen_ such event
+by registering a service listener. The listener will be notified when an event occurs.
+
+*Service Selection and Filtering*
+Service lookups and service listeners can select services either based on the _contract_ (service specification) or
+service properties.
+
+
+Accessing the Service Registry
+------------------------------
+
+Each `hub` has it's own service registry. So, `hub.getServiceRegistry()` gives you access to the service registry. However,
+the `hub` object is extended to give access to more high level functions avoiding a direct access to the registry:
+
+* `hub.registerService(component, contract, {properties})`: registers a service and returns the service registration
+* `hub.unregisterService(registration)`: unregisters the service
+* `hub.getServiceReferences(contract, filter)` : searches for service references implementing the given contract and matching the
+given filter (function receiving a service reference as parameter). Both arguments are optional. Passing no arguments,
+returns all services. If no service match an empty list is returned.
+* `hub.getServiceReference(contract, filter)` : similar to the previous method, but returned only one candidate, `null`
+if no service matches.
+* `hub.getService(component, reference)` : gets the service objects for the given reference. `null` if the reference is not valid anymore.
+* `hub.registerServiceListener(configuration)` : registers a service listener. The `configuration` object contains the
+  required `contract` (optional), the `filter` method (optional), and the function called when a service event matches
+  (`listener`). This method receives a `Service Event` as parameter.
+* `hub.unregisterServiceListener(configuration)` : unregisters the service listener.
+
+
+Service Publication
+-------------------
+
+Service Modification
+--------------------
+
+Creating your own service registry
+----------------------------------
+
+You can create your own service registry for a specific hub:
+
+    var registry = new SOC.ServiceRegistry(hub);
+
+Be careful that this means that the hub has 2 service registries.
