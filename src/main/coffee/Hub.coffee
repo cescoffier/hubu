@@ -22,17 +22,21 @@ HUBU.Hub = class Hub
 
   ###
   # The list of extensions plugged on this hub.
+  # The extensions are created on the first hub access (either `start` or `registerComponent`)
   ###
-  _extensions : []
+  _extensions : null
 
   constructor: ->
     @_components = []
     @_started = false
-    @_extensions = []
+    @_extensions = null
 
+  _initialize: ->
+    @_extensions = []
     for name,ext of getHubuExtensions()
       HUBU.logger.info("Initializing new hub with the " + name + " extension")
       @_extensions.push(new ext(@))
+
 
   ###
   # Gets all plugged components.
@@ -87,6 +91,10 @@ HUBU.Hub = class Hub
       else
         throw new Exception(component + " is not a valid component")
     ### End of Validation ###
+
+
+    # Initialize the hub if not done already
+    @_initialize() unless @_extensions isnt null
 
     # First check that we don't have already this component
     # We can call getComponentName as we have check the component
@@ -152,6 +160,9 @@ HUBU.Hub = class Hub
         throw new Exception("Cannot unregister component, it's not a valid component").add("component", component)
       else cmp = component
 
+    # Initialize the hub if not done already
+    @_initialize() unless @_extensions isnt null
+
     # Iterate on the components array to find the component to unregister.
     idx = HUBU.UTILS.indexOf(@_components, cmp); # Find the index
     if idx isnt -1
@@ -174,6 +185,9 @@ HUBU.Hub = class Hub
   ###
   start : ->
     if @_started then return @
+
+    # Initialize the hub if not done already
+    @_initialize() unless @_extensions isnt null
 
     @_started = true;
     for cmp in @_components
@@ -205,10 +219,13 @@ HUBU.Hub = class Hub
   reset: ->
     @.stop()
 
+    @_initialize() unless @_extensions isnt null
+
     for ext in @_extensions
       HUBU.UTILS.invoke(ext, "reset", []);
 
-    @_components = [];
+    @_components = []
+    @_extensions = null
 
     return @
 
