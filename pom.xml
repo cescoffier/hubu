@@ -220,12 +220,16 @@
                                     <output>${project.build.directory}/hubu-all.js</output>
 
                                     <includes>
+                                        <include>${js.target}/Hubu-Root.js</include>
                                         <include>${js.target}/AbstractComponent.js</include>
                                         <include>${js.target}/Utils.js</include>
-                                        <include>${js.target}/Hub.js</include>
+
                                         <include>${js.target}/hubu-Eventing-Extension.js</include>
                                         <include>${js.target}/Hubu-Binding-Extension.js</include>
                                         <include>${js.target}/Hubu-SOC-Mechanism.js</include>
+                                        <include>${js.target}/Hubu-SOC-Extension.js</include>
+
+                                        <include>${js.target}/Hub.js</include>
                                     </includes>
                                 </aggregation>
                             </aggregations>

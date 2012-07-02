@@ -9,11 +9,13 @@ global.HUBU = global.HUBU ? {}
 # Extension factory placeholder.
 # Contains tuple `extension name -> contructor function`
 ###
-HUBU.extensions = HUBU.extensions ? {};
+HUBU.extensions = HUBU.extensions ? {}
 
-global.getHubu = -> return HUBU;
-global.getHubuExtensions = -> return HUBU.extensions;
+global.getHubu = -> return HUBU
+global.getHubuExtensions = -> return HUBU.extensions
 
 global.getGlobal = -> return global
+
+###
 
 
