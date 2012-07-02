@@ -172,6 +172,7 @@
                         <include>**/Hubu-Eventing-Extension.coffee</include>
                         <include>**/Hubu-Binding-Extension.coffee</include>
                         <include>**/Hubu-SOC-Mechanism.coffee</include>
+                        <include>**/Hubu-SOC-Extension.coffee</include>
 
                         <include>**/Hub.coffee</include>
                     </sourceIncludes>
