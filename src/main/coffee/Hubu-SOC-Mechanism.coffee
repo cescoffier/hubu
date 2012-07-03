@@ -223,11 +223,13 @@ SOC.ServiceRegistry = class ServiceRegistry
   unregisterServices: (component) ->
     if not component? then throw new Exception "Cannot unregister the services - invalid component"
     cmpEntry = entry for entry in @_registrations when entry.component is component
-    regs = cmpEntry.registration
-    if regs?
-      for reg of regs
-        @unregisterService(registration)
-    HUBU.UTILS.removeElementFromArray(@_registrations, cmpEntry)
+    if cmpEntry?
+      regs = cmpEntry.registrations
+      if regs?
+        for reg in regs
+          @unregisterService(reg)
+      HUBU.UTILS.removeElementFromArray(@_registrations, cmpEntry)
+    # Else nothing to do.
 
   getServiceReferences : (contract, filter) ->
      return @_match(@_buildFilter(contract, filter))
