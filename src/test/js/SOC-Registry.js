@@ -40,6 +40,8 @@ describe("H-UBU Service Registry Tests", function () {
             getComponentName : function() { return "hello" }
         }
 
+        hub.registerComponent(component).start();
+
         var registry = new SOC.ServiceRegistry(hub);
         var refs = registry.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
@@ -89,6 +91,11 @@ describe("H-UBU Service Registry Tests", function () {
             configure : function() {},
             getComponentName : function() { return "hello-fr" }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .start();
 
         var registry = new SOC.ServiceRegistry(hub);
         var refs = registry.getServiceReferences(null, null);
@@ -173,6 +180,12 @@ describe("H-UBU Service Registry Tests", function () {
             configure : function() {},
             getComponentName : function() { return "component-3" }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
 
         var registry = new SOC.ServiceRegistry(hub);
         var refs = registry.getServiceReferences(null, null);
@@ -292,6 +305,12 @@ describe("H-UBU Service Registry Tests", function () {
                 }
             }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
 
         var registry = new SOC.ServiceRegistry(hub);
         var refs = registry.getServiceReferences(null, null);
@@ -416,6 +435,12 @@ describe("H-UBU Service Registry Tests", function () {
             }
         }
 
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
+
         var registry = new SOC.ServiceRegistry(hub);
         var refs = registry.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
@@ -467,10 +492,6 @@ describe("H-UBU Service Registry Tests", function () {
         expect(listenAllContractService.bindCount).toBe(3);
         expect(listenFrContractService.bindCount).toBe(1);
     });
-
-
-
-
 
 
 });
