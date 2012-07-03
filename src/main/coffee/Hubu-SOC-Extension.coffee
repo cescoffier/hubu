@@ -25,6 +25,11 @@ HUBU.ServiceOrientation = class ServiceOrientation
     @_hub.unregisterServiceListener = (listenerConfiguration) -> return registry.unregisterServiceListener(listenerConfiguration)
   ### End of constructor  ###
 
+  ###
+  # The given component is unregistered from the hub. We needs to unregisters all services.
+  ###
+  unregisterComponent : (cmp) -> @_registry.unregisterServices(cmp)
+
 ### End of the Service Orientation Extension class  ###
 
 # Declare the extension
