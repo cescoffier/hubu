@@ -40,6 +40,10 @@ describe("H-UBU Service Extension Tests - Basics", function () {
             getComponentName : function() { return "hello" }
         }
 
+        hub
+            .registerComponent(component)
+            .start();
+
         var refs = hub.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
 
@@ -88,6 +92,11 @@ describe("H-UBU Service Extension Tests - Basics", function () {
             configure : function() {},
             getComponentName : function() { return "hello-fr" }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .start();
 
         var refs = hub.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
@@ -171,6 +180,12 @@ describe("H-UBU Service Extension Tests - Basics", function () {
             configure : function() {},
             getComponentName : function() { return "component-3" }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
 
         var refs = hub.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
@@ -289,6 +304,12 @@ describe("H-UBU Service Extension Tests - Basics", function () {
                 }
             }
         }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
 
         var refs = hub.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
@@ -412,6 +433,12 @@ describe("H-UBU Service Extension Tests - Basics", function () {
             }
         }
 
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
+
         var refs = hub.getServiceReferences(null, null);
         expect(refs.length).toBe(0);
 
@@ -461,6 +488,47 @@ describe("H-UBU Service Extension Tests - Basics", function () {
         var reg = hub.registerService(component1, contract, {lg : "en"});
         expect(listenAllContractService.bindCount).toBe(3);
         expect(listenFrContractService.bindCount).toBe(1);
+    });
+
+    it("Should unregister all services when a component is stopped", function() {
+        var contract = {
+            hello: function() {}
+        }
+        var component1 = {
+            hello : function() {
+                return "hello"
+            },
+            start : function() {
+                this.hub.registerService(this, contract);
+            },
+            stop : function() {},
+            configure : function(hub) {
+                this.hub = hub;
+            },
+            getComponentName : function() { return "hello" }
+        }
+
+        var reg = hub.registerComponent(component1);
+        hub.start();
+
+        var refs = hub.getServiceReferences(contract, null);
+        expect(refs.length).toBe(1);
+        expect(refs[0].getContract()).toBe(contract);
+        expect(hub.getService(component1, refs[0]).hello()).toBe("hello");
+
+        console.log("Component 1 unregistered");
+        hub.unregisterComponent(component1);
+
+        refs = hub.getServiceReferences(contract, null);
+        expect(refs.length).toBe(0);
+
+        try {
+            reg.register();
+            this.fail("The service registration is not valid anymore.")
+        } catch (e) {
+            // OK.
+        }
+
     });
 
 });
