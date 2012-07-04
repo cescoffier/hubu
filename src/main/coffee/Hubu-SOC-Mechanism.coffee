@@ -360,18 +360,3 @@ SOC.ServiceRegistry = class ServiceRegistry
       # The conformity was checked before
       listener.serviceChanged(event)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
