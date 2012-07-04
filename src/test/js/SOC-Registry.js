@@ -493,5 +493,123 @@ describe("H-UBU Service Registry Tests", function () {
         expect(listenFrContractService.bindCount).toBe(1);
     });
 
+    it("Should support service modification and attached events", function() {
+        var contract = {
+            hello: function() {}
+        }
+
+        var component1 = {
+            hello : function() {
+                return "hello"
+            },
+            start : function() {},
+            stop : function() {},
+            configure : function() {},
+            getComponentName : function() { return "hello" }
+        }
+
+        var component2 = {
+            hello : function() {
+                return "bonjour"
+            },
+            start : function() {},
+            stop : function() {},
+            configure : function() {},
+            getComponentName : function() { return "hello-fr" }
+        }
+
+        var component3 = {
+            hello : function() {
+                return "yes sire";
+            },
+            start : function() {},
+            stop : function() {},
+            configure : function() {},
+            getComponentName : function() { return "component-3" }
+        }
+
+        var listenFrContractService = {
+            bindCount: 0,
+            unbindCount : 0,
+            modifiedEMCount : 0,
+            modifiedCount : 0,
+            contract : contract,
+            filter : function(ref) {
+                return ref.getProperty("lg") === "fr";
+            },
+            listener : function(event) {
+                if (event.getType() === SOC.ServiceEvent.REGISTERED) {
+                    listenFrContractService.bindCount = listenFrContractService.bindCount +1;
+                } else if (event.getType() === SOC.ServiceEvent.UNREGISTERING) {
+                    listenFrContractService.unbindCount = listenFrContractService.unbindCount +1;
+                } else if (event.getType() === SOC.ServiceEvent.MODIFIED) {
+                    listenFrContractService.modifiedCount = listenFrContractService.modifiedCount +1;
+                } else if (event.getType() === SOC.ServiceEvent.MODIFIED_ENDMATCH) {
+                    listenFrContractService.modifiedEMCount = listenFrContractService.modifiedEMCount +1;
+                }
+            }
+        }
+
+        hub
+            .registerComponent(component1)
+            .registerComponent(component2)
+            .registerComponent(component3)
+            .start();
+
+        var registry = new SOC.ServiceRegistry(hub);
+        var refs = registry.getServiceReferences(null, null);
+        expect(refs.length).toBe(0);
+
+        // Register the listeners
+        registry.registerServiceListener(listenFrContractService);
+
+        var reg = registry.registerService(component1, contract, {lg : "en"});
+        expect(reg.isRegistered()).toBe(true);
+
+        // Does not match.
+        expect(listenFrContractService.bindCount).toBe(0);
+
+        var reg2 = registry.registerService(component2, contract, {lg : "fr"});
+        expect(reg2.isRegistered()).toBe(true);
+
+        // Check match as a registered event.
+        expect(listenFrContractService.bindCount).toBe(1);
+
+
+        var reg3 = registry.registerService(component3, contract, {lg : "en"});
+        expect(reg3.isRegistered()).toBe(true);
+
+        // Does not match
+        expect(listenFrContractService.bindCount).toBe(1);
+
+        // Modified component3
+        reg3.setProperties({"lg" : "fr"});
+        // New match
+        expect(listenFrContractService.bindCount).toBe(1);
+        expect(listenFrContractService.modifiedCount).toBe(1);
+
+        reg3.setProperties({"lg" : "en"});
+        // End Match
+        expect(listenFrContractService.bindCount).toBe(1);
+        expect(listenFrContractService.modifiedCount).toBe(1);
+        expect(listenFrContractService.unbindCount).toBe(0);
+        expect(listenFrContractService.modifiedEMCount).toBe(1);
+
+        // Unregister
+        registry.unregisterService(reg);
+        expect(listenFrContractService.bindCount).toBe(1);
+        expect(listenFrContractService.modifiedCount).toBe(1);
+        expect(listenFrContractService.unbindCount).toBe(0);
+        expect(listenFrContractService.modifiedEMCount).toBe(1);
+
+        registry.unregisterService(reg2);
+        expect(listenFrContractService.bindCount).toBe(1);
+        expect(listenFrContractService.modifiedCount).toBe(1);
+        expect(listenFrContractService.unbindCount).toBe(1);
+        expect(listenFrContractService.modifiedEMCount).toBe(1);
+
+        registry.registerServiceListener(listenFrContractService);
+    });
+
 
 });

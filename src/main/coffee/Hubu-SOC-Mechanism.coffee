@@ -7,7 +7,6 @@ TODO Used by -> the usage graph
 TODO Several contract within a registration
 TODO Service Ranking
 TODO Factories / Object creation strategy ?
-TODO Service Modification and END_MATCH
 ###
 
 
@@ -43,22 +42,27 @@ SOC.ServiceRegistration = class ServiceRegistration
   # The service reference
   _reference : null
 
+  # The service registry in which the service mush be registered.
+  _registry : null
+
 
   @getAndIncId : ->
     id = SOC.ServiceRegistration._nextId
     SOC.ServiceRegistration._nextId = SOC.ServiceRegistration._nextId + 1
     return id
 
-  constructor : (contract, component, properties, hub) ->
+  constructor : (contract, component, properties, hub, registry) ->
     @_id = -1 # Be don't have an id yet
     if not component? then throw new Exception "Cannot create a service registration without a valid component"
     if not contract? then throw new Exception "Cannot create a service registration without a contract"
     if not hub? then throw new Exception "Cannot create a service registration without the hub"
+    if not registry? then throw new Exception "Cannot create a service registration without the registry"
 
     @_component = component
     @_hub = hub
     @_contract = contract
     @_properties = properties ? {}
+    @_registry = registry
 
     # Extends properties
     @_properties["service.contract"] = @_contract
@@ -91,11 +95,26 @@ SOC.ServiceRegistration = class ServiceRegistration
 
   getProperties : -> return @_properties
 
-  setProperties : (properties)->
+  setProperties : (properties) ->
+    old = null
+    if @isRegistered()
+      # Generate the old service reference only if we are registered.
+      # Clone the properties
+      props = HUBU.UTILS.clone(@_properties, ["service.contract", "service.publisher"])
+      # To recreate the service reference, we create a fake service registration copying the current one.
+      old = new SOC.ServiceRegistration(@_contract, @_component, props, @_hub, @_registry)
+      old._id = @_id
+      old._reference = new SOC.ServiceReference(old)
+
+    # Now we can modify the properties.
     @_properties = properties ? {}
     @_properties["service.contract"] = @_contract
     @_properties["service.publisher"] = @_component
     @_properties["service.id"] = @_id
+    if @isRegistered()  and old?
+      # Fire the MODIFIED service event
+      event = new SOC.ServiceEvent(SOC.ServiceEvent.MODIFIED, @.getReference())
+      @_registry.fireServiceEvent(event, old.getReference())
 
 
 ###
@@ -192,7 +211,7 @@ SOC.ServiceRegistry = class ServiceRegistry
       throw new Exception("Cannot register service - the component does not implement the contract")
         .add("contract", contract).add("component", component)
 
-    reg = new ServiceRegistration(contract, component, properties, @_hub)
+    reg = new ServiceRegistration(contract, component, properties, @_hub, @)
 
     # We add the registration to the map
     @_addRegistration(component, reg)
@@ -317,14 +336,14 @@ SOC.ServiceRegistry = class ServiceRegistry
   ###
   # This method should be used by the extension only.
   ###
-  fireServiceEvent : (event, oldProps) ->
+  fireServiceEvent : (event, oldRef) ->
     for listener in @_listeners
       matched = not listener.filter? or @_testAgainstFilter(listener, event.getReference())
       if (matched)
         @_invokeServiceListener(listener, event)
-      else if (event.type is SOC.ServiceEvent.MODIFIED and oldProps?)
+      else if (event.getType() is SOC.ServiceEvent.MODIFIED and oldRef?)
         # We need to send a MODIFIED_ENDMATCH event if the listener matched previously
-        if @_testAgainstFilter(listener, oldProps)
+        if @_testAgainstFilter(listener, oldRef)
           newEvent = new SOC.ServiceEvent(SOC.ServiceEvent.MODIFIED_ENDMATCH, event.reference)
           @_invokeServiceListener(listener, newEvent)
   # End fireServiceEvent

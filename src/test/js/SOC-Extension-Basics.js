@@ -531,4 +531,58 @@ describe("H-UBU Service Extension Tests - Basics", function () {
 
     });
 
+    it("should support the all in one example : registration - lookup - usage", function() {
+        var contract = {
+            hello : function() {}
+        };
+
+        var provider = {
+            configure : function(hub) {
+                this.hub = hub;
+            },
+            start: function() {
+                this.reg = this.hub.registerService(this, contract);
+            },
+            stop: function() {
+                // Even if hubu will manage it, I will unregister my service myself
+                this.hub.unregisterService(this.reg);
+            },
+            getComponentName: function() { return "provider"; },
+            hello : function() {
+                return "Hello";
+            }
+        };
+
+        var consumer = {
+            configure : function(hub) {
+                this.hub = hub;
+            },
+            start: function() { },
+            stop: function() {
+                if (this.ref !== undefined && this.ref != null) {
+                    this.hub.ungetService(this, this.ref);
+                }
+            },
+            getComponentName: function() { return "consumer"; },
+            doSomething : function() {
+                this.ref = this.hub.getServiceReference(contract);
+                if (this.ref !== undefined && this.ref != null) {
+                    var svc = this.hub.getService(this, this.ref);
+                    if (svc != null) {
+                        return svc.hello() + " you";
+                    }
+                }
+            }
+        };
+
+        hub
+            .registerComponent(provider)
+            .registerComponent(consumer)
+            .start();
+
+        expect(consumer.doSomething()).toBe("Hello you");
+
+        hub.stop();
+    });
+
 });

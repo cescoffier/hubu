@@ -34,7 +34,7 @@ HUBU.Hub = class Hub
   _initialize: ->
     @_extensions = []
     for name,ext of getHubuExtensions()
-      HUBU.logger.info("Initializing new hub with the " + name + " extension")
+      #HUBU.logger.info("Initializing new hub with the " + name + " extension")
       @_extensions.push(new ext(@))
 
 

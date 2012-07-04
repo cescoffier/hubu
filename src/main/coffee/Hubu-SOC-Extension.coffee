@@ -21,6 +21,7 @@ HUBU.ServiceOrientation = class ServiceOrientation
       if refs.length isnt 0 then return refs[0]
       return null
     @_hub.getService = (component, reference) -> return registry.getService(component, reference)
+    @_hub.ungetService = (component, reference) -> return registry.ungetService(component, reference)
     @_hub.registerServiceListener = (listenerConfiguration) -> return registry.registerServiceListener(listenerConfiguration)
     @_hub.unregisterServiceListener = (listenerConfiguration) -> return registry.unregisterServiceListener(listenerConfiguration)
   ### End of constructor  ###

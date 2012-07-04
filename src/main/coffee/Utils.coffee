@@ -184,9 +184,10 @@ utils.defineFunctionIfNotExist = (obj, name, func) ->
 ###
 # Clone an object (deep copy).
 # @param obj {Object} the object to clone
+# @param excludes {Array} the property to exclude.
 # @return the cloned object, or the object itself if it's not an object.
 ###
-utils.clone = (obj) ->
+utils.clone = (obj, excludes) ->
   if not obj? or typeof obj isnt 'object'
     return obj
 
@@ -203,8 +204,10 @@ utils.clone = (obj) ->
 
   newInstance = new obj.constructor()
 
-  for key of obj
-    newInstance[key] = @clone obj[key]
+  excludes = excludes ? []
+
+  for key of obj when @indexOf(excludes, key) is -1
+    newInstance[key] = @clone(obj[key], excludes)
 
   return newInstance
 
