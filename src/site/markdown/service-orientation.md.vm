@@ -12,7 +12,6 @@ H-UBU's Service Orientation is closely related to OSGi Service Layer, and so you
 * _Service Publisher_ : implementing and publishing a service specification.
 * _Service Consumer_ : looking for services and using them
 
-
 H-UBU service orientation implements those concepts using the following entities:
 
 *Service Specification*
