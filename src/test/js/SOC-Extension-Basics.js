@@ -516,7 +516,6 @@ describe("H-UBU Service Extension Tests - Basics", function () {
         expect(refs[0].getContract()).toBe(contract);
         expect(hub.getService(component1, refs[0]).hello()).toBe("hello");
 
-        console.log("Component 1 unregistered");
         hub.unregisterComponent(component1);
 
         refs = hub.getServiceReferences(contract, null);
