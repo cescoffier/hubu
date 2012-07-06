@@ -213,8 +213,9 @@ HUBU.Hub = class Hub
     return @
 
   ###
-  # For testing purpose only !
   # Resets the hub.
+  # You this method to rest the hub state (no components, no extensions...)
+  # You can also create a new `hub` too.
   ###
   reset: ->
     @.stop()
